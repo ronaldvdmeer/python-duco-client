@@ -8,7 +8,6 @@ from duco.models import (
     ApiInfo,
     BoardInfo,
     DiagComponent,
-    LanInfo,
     NetworkType,
     Node,
     NodeGeneralInfo,

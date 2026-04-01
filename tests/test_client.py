@@ -9,7 +9,6 @@ from aioresponses import aioresponses
 from duco.client import DucoClient
 from duco.exceptions import DucoConnectionError, DucoError
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

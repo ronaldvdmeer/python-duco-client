@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from aiohttp import ClientSession
 
 from .exceptions import (
     DucoConnectionError,
     DucoError,
-    DucoRateLimitError,
 )
 from .models import (
     ApiInfo,
@@ -60,9 +59,7 @@ class DucoClient:
     # Internal helpers
     # -------------------------------------------------------------------------
 
-    async def _request(
-        self, method: str, path: str, **kwargs: Any
-    ) -> Any:
+    async def _request(self, method: str, path: str, **kwargs: Any) -> Any:
         """Make a request to the Duco API.
 
         Args:
@@ -124,7 +121,7 @@ class DucoClient:
         Returns:
             Raw JSON response from ``/info``.
         """
-        return await self._request("GET", "/info")
+        return cast(dict[str, Any], await self._request("GET", "/info"))
 
     async def async_get_board_info(self) -> BoardInfo:
         """Get board information.
@@ -132,9 +129,7 @@ class DucoClient:
         Returns:
             Board info with serial numbers and box identification.
         """
-        data = await self._request(
-            "GET", "/info", params={"module": "General", "submodule": "Board"}
-        )
+        data = await self._request("GET", "/info", params={"module": "General", "submodule": "Board"})
         board = data["General"]["Board"]
         return BoardInfo(
             box_name=self._val(board["BoxName"]),
@@ -152,9 +147,7 @@ class DucoClient:
         Returns:
             Network info with IP, MAC, WiFi signal, etc.
         """
-        data = await self._request(
-            "GET", "/info", params={"module": "General", "submodule": "Lan"}
-        )
+        data = await self._request("GET", "/info", params={"module": "General", "submodule": "Lan"})
         lan = data["General"]["Lan"]
         return LanInfo(
             mode=self._val(lan["Mode"]),
@@ -173,9 +166,7 @@ class DucoClient:
         Returns:
             List of diagnostic component statuses.
         """
-        data = await self._request(
-            "GET", "/info", params={"module": "Diag"}
-        )
+        data = await self._request("GET", "/info", params={"module": "Diag"})
         return [
             DiagComponent(
                 component=item["Component"],
@@ -195,7 +186,7 @@ class DucoClient:
             "/info",
             params={"module": "General", "submodule": "PublicApi"},
         )
-        return self._val(data["General"]["PublicApi"]["WriteReqCntRemain"])
+        return int(self._val(data["General"]["PublicApi"]["WriteReqCntRemain"]))
 
     # -------------------------------------------------------------------------
     # Nodes
@@ -243,21 +234,15 @@ class DucoClient:
                 time_state_remain=self._val(vent_data["TimeStateRemain"]),
                 time_state_end=self._val(vent_data["TimeStateEnd"]),
                 mode=self._val(vent_data["Mode"]),
-                flow_lvl_tgt=self._val(vent_data["FlowLvlTgt"])
-                if "FlowLvlTgt" in vent_data
-                else None,
+                flow_lvl_tgt=self._val(vent_data["FlowLvlTgt"]) if "FlowLvlTgt" in vent_data else None,
             )
 
         sensor = None
         if "Sensor" in data:
             sensor_data = data["Sensor"]
             sensor = NodeSensorInfo(
-                co2=self._val(sensor_data["Co2"])
-                if "Co2" in sensor_data
-                else None,
-                iaq_co2=self._val(sensor_data["IaqCo2"])
-                if "IaqCo2" in sensor_data
-                else None,
+                co2=self._val(sensor_data["Co2"]) if "Co2" in sensor_data else None,
+                iaq_co2=self._val(sensor_data["IaqCo2"]) if "IaqCo2" in sensor_data else None,
             )
 
         return Node(
@@ -313,9 +298,7 @@ class DucoClient:
                 )
             )
 
-        name = self._val(
-            data.get("DeviceGroupConfig", {}).get("General", {}).get("Name", {"Val": ""})
-        )
+        name = self._val(data.get("DeviceGroupConfig", {}).get("General", {}).get("Name", {"Val": ""}))
 
         return Zone(
             zone_id=data["Zone"],
@@ -327,9 +310,7 @@ class DucoClient:
     # Actions
     # -------------------------------------------------------------------------
 
-    async def async_set_ventilation_state(
-        self, node_id: int, state: str
-    ) -> None:
+    async def async_set_ventilation_state(self, node_id: int, state: str) -> None:
         """Set the ventilation state for a node.
 
         Args:
@@ -346,9 +327,7 @@ class DucoClient:
             json={"Action": "SetVentilationState", "Val": state},
         )
 
-    async def async_set_identify(
-        self, node_id: int, *, enabled: bool
-    ) -> None:
+    async def async_set_identify(self, node_id: int, *, enabled: bool) -> None:
         """Enable or disable identification mode on a node.
 
         Args:
@@ -399,7 +378,7 @@ class DucoClient:
         Returns:
             Raw JSON response from ``/config``.
         """
-        return await self._request("GET", "/config")
+        return cast(dict[str, Any], await self._request("GET", "/config"))
 
     async def async_set_node_name(self, node_id: int, name: str) -> None:
         """Set the name of a node.
