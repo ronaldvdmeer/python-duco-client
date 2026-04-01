@@ -40,6 +40,7 @@ htmlcov/
 # Documentation (local only)
 DUCO_API.md
 
-# AI instructions and skills (local only)
+# AI instructions, skills and agents (local only)
 .github/instructions/
 .github/skills/
+.github/agents/
