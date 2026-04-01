@@ -41,6 +41,9 @@ Homepage = "https://github.com/ronaldvdmeer/python-duco"
 Repository = "https://github.com/ronaldvdmeer/python-duco"
 Issues = "https://github.com/ronaldvdmeer/python-duco/issues"
 
+[project.scripts]
+duco = "duco.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
