@@ -52,6 +52,7 @@ duco = ["py.typed"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = [
+    "--ignore=tests/integration",
     "--cov=duco",
     "--cov-report=term-missing",
     "-v",
