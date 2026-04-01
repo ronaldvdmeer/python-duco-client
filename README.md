@@ -1,11 +1,11 @@
-# python-duco
+# python-duco-client
 
 Async Python client for the DUCO ventilation box local REST API.
 
 ## Installation
 
 ```bash
-pip install python-duco
+pip install python-duco-client
 ```
 
 ## Quick start

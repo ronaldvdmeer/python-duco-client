@@ -8,7 +8,7 @@
 ## Installation
 
 ```bash
-pip install python-duco
+pip install python-duco-client
 ```
 
 ## Connect to the box

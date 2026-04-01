@@ -28,7 +28,7 @@ from .models import (
 )
 
 try:
-    __version__ = version("python-duco")
+    __version__ = version("python-duco-client")
 except PackageNotFoundError:
     __version__ = "0.0.0"
 

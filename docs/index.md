@@ -1,4 +1,4 @@
-# python-duco Documentation
+# python-duco-client Documentation
 
 Async Python client library for the [DUCO ventilation box](https://www.duco.eu) local REST API, built on `aiohttp`.
 
