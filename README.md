@@ -60,7 +60,6 @@ asyncio.run(main())
 | `async_set_identify_all(enabled=True)` | Toggle identify on all devices |
 | `async_reconnect_wifi()` | Reconnect WiFi |
 | `async_scan_wifi()` | Start WiFi scan |
-| `async_get_config()` | Get raw box config |
 | `async_set_node_name(node_id, name)` | Set node name |
 
 ### Ventilation states

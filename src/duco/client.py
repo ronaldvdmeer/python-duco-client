@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json as _json
-from typing import Any, cast
+from typing import Any
 
 from aiohttp import ClientSession
 
@@ -120,14 +120,6 @@ class DucoClient:
     # -------------------------------------------------------------------------
     # Box info
     # -------------------------------------------------------------------------
-
-    async def async_get_info(self) -> dict[str, Any]:
-        """Get all box information (raw).
-
-        Returns:
-            Raw JSON response from ``/info``.
-        """
-        return cast(dict[str, Any], await self._request("GET", "/info"))
 
     async def async_get_board_info(self) -> BoardInfo:
         """Get board information.
@@ -377,14 +369,6 @@ class DucoClient:
     # -------------------------------------------------------------------------
     # Config
     # -------------------------------------------------------------------------
-
-    async def async_get_config(self) -> dict[str, Any]:
-        """Get the box configuration (raw).
-
-        Returns:
-            Raw JSON response from ``/config``.
-        """
-        return cast(dict[str, Any], await self._request("GET", "/config"))
 
     async def async_set_node_name(self, node_id: int, name: str) -> None:
         """Set the name of a node.

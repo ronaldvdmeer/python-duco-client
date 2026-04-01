@@ -181,6 +181,54 @@ async def test_set_ventilation_state(client, base_url):
 
 
 # ---------------------------------------------------------------------------
+# async_set_identify
+# ---------------------------------------------------------------------------
+
+
+async def test_set_identify(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action/nodes/1", payload={})
+        await client.async_set_identify(1, enabled=True)
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
+# async_set_identify_all
+# ---------------------------------------------------------------------------
+
+
+async def test_set_identify_all(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_set_identify_all(enabled=False)
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
+# async_reconnect_wifi
+# ---------------------------------------------------------------------------
+
+
+async def test_reconnect_wifi(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_reconnect_wifi()
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
+# async_scan_wifi
+# ---------------------------------------------------------------------------
+
+
+async def test_scan_wifi(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_scan_wifi()
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
 # async_set_node_name
 # ---------------------------------------------------------------------------
 

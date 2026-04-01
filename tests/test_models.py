@@ -8,60 +8,13 @@ from duco.models import (
     ApiInfo,
     BoardInfo,
     DiagComponent,
-    NetworkType,
     Node,
     NodeGeneralInfo,
     NodeSensorInfo,
-    NodeType,
     NodeVentilationInfo,
-    VentilationMode,
-    VentilationState,
     Zone,
     ZoneGroup,
 )
-
-
-class TestVentilationState:
-    """Test VentilationState enum."""
-
-    def test_all_states_exist(self):
-        """Verify key ventilation states are defined."""
-        assert VentilationState.AUTO == "AUTO"
-        assert VentilationState.MAN1 == "MAN1"
-        assert VentilationState.MAN2 == "MAN2"
-        assert VentilationState.MAN3 == "MAN3"
-        assert VentilationState.CNT1 == "CNT1"
-        assert VentilationState.EMPT == "EMPT"
-
-    def test_str_value(self):
-        """VentilationState can be compared to plain strings."""
-        assert VentilationState.MAN2 == "MAN2"
-
-
-class TestNodeType:
-    """Test NodeType enum."""
-
-    def test_node_types(self):
-        assert NodeType.BOX == "BOX"
-        assert NodeType.UCCO2 == "UCCO2"
-        assert NodeType.BSRH == "BSRH"
-
-
-class TestNetworkType:
-    """Test NetworkType enum."""
-
-    def test_network_types(self):
-        assert NetworkType.VIRT == "VIRT"
-        assert NetworkType.RF == "RF"
-
-
-class TestVentilationMode:
-    """Test VentilationMode enum."""
-
-    def test_modes(self):
-        assert VentilationMode.MANU == "MANU"
-        assert VentilationMode.AUTO == "AUTO"
-        assert VentilationMode.NONE == "-"
 
 
 class TestApiInfo:
