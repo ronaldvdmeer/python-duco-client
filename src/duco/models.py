@@ -148,7 +148,7 @@ class NodeVentilationInfo:
         flow_lvl_tgt: Target flow level (only on BOX nodes), or ``None``.
     """
 
-    state: str
+    state: VentilationState
     time_state_remain: int
     time_state_end: int
     mode: str
