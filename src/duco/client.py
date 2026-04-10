@@ -15,11 +15,15 @@ from .models import (
     ApiInfo,
     BoardInfo,
     DiagComponent,
+    DiagStatus,
     LanInfo,
     Node,
     NodeGeneralInfo,
     NodeSensorInfo,
+    NodeType,
+    NetworkType,
     NodeVentilationInfo,
+    VentilationMode,
     Zone,
     ZoneGroup,
 )
@@ -168,7 +172,7 @@ class DucoClient:
         return [
             DiagComponent(
                 component=item["Component"],
-                status=item["Status"],
+                status=DiagStatus(item["Status"]),
             )
             for item in data["Diag"]["SubSystems"]
         ]
@@ -215,9 +219,9 @@ class DucoClient:
         """Parse a node from the API response."""
         general_data = data["General"]
         general = NodeGeneralInfo(
-            node_type=self._val(general_data["Type"]),
+            node_type=NodeType(self._val(general_data["Type"])),
             sub_type=self._val(general_data["SubType"]),
-            network_type=self._val(general_data["NetworkType"]),
+            network_type=NetworkType(self._val(general_data["NetworkType"])),
             parent=self._val(general_data["Parent"]),
             asso=self._val(general_data["Asso"]),
             name=self._val(general_data["Name"]),
@@ -231,7 +235,7 @@ class DucoClient:
                 state=self._val(vent_data["State"]),
                 time_state_remain=self._val(vent_data["TimeStateRemain"]),
                 time_state_end=self._val(vent_data["TimeStateEnd"]),
-                mode=self._val(vent_data["Mode"]),
+                mode=VentilationMode(self._val(vent_data["Mode"])),
                 flow_lvl_tgt=self._val(vent_data["FlowLvlTgt"]) if "FlowLvlTgt" in vent_data else None,
             )
 

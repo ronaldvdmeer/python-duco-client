@@ -51,6 +51,14 @@ class VentilationMode(StrEnum):
     NONE = "-"
 
 
+class DiagStatus(StrEnum):
+    """Diagnostic subsystem status values."""
+
+    OK = "Ok"
+    DISABLE = "Disable"
+    ERROR = "Error"
+
+
 @dataclass(frozen=True, slots=True)
 class ApiInfo:
     """API version and endpoint information.
@@ -116,11 +124,11 @@ class DiagComponent:
 
     Attributes:
         component: Component name (e.g. ``"Ventilation"``).
-        status: Status string (e.g. ``"Ok"``).
+        status: Component status.
     """
 
     component: str
-    status: str
+    status: DiagStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,7 +159,7 @@ class NodeVentilationInfo:
     state: VentilationState
     time_state_remain: int
     time_state_end: int
-    mode: str
+    mode: VentilationMode
     flow_lvl_tgt: int | None = None
 
 
@@ -160,18 +168,18 @@ class NodeGeneralInfo:
     """General information about a node.
 
     Attributes:
-        node_type: Node type (e.g. ``"BOX"``, ``"UCCO2"``).
+        node_type: Node type.
         sub_type: Node subtype number.
-        network_type: Connection type (``"VIRT"`` or ``"RF"``).
+        network_type: Connection type.
         parent: Parent node ID (0 = no parent).
         asso: Associated node ID (0 = no association).
         name: User-assigned name.
         identify: Identification mode (0 = off, 1 = on).
     """
 
-    node_type: str
+    node_type: NodeType
     sub_type: int
-    network_type: str
+    network_type: NetworkType
     parent: int
     asso: int
     name: str
