@@ -15,12 +15,16 @@ from .models import (
     ApiInfo,
     BoardInfo,
     DiagComponent,
+    DiagStatus,
     LanInfo,
+    NetworkType,
     Node,
     NodeGeneralInfo,
     NodeSensorInfo,
+    NodeType,
     NodeVentilationInfo,
     SystemConfig,
+    VentilationMode,
     Zone,
     ZoneGroup,
 )
@@ -169,7 +173,7 @@ class DucoClient:
         return [
             DiagComponent(
                 component=item["Component"],
-                status=item["Status"],
+                status=DiagStatus(item["Status"]),
             )
             for item in data["Diag"]["SubSystems"]
         ]
@@ -216,9 +220,9 @@ class DucoClient:
         """Parse a node from the API response."""
         general_data = data["General"]
         general = NodeGeneralInfo(
-            node_type=self._val(general_data["Type"]),
+            node_type=NodeType(self._val(general_data["Type"])),
             sub_type=self._val(general_data["SubType"]),
-            network_type=self._val(general_data["NetworkType"]),
+            network_type=NetworkType(self._val(general_data["NetworkType"])),
             parent=self._val(general_data["Parent"]),
             asso=self._val(general_data["Asso"]),
             name=self._val(general_data["Name"]),
@@ -232,7 +236,7 @@ class DucoClient:
                 state=self._val(vent_data["State"]),
                 time_state_remain=self._val(vent_data["TimeStateRemain"]),
                 time_state_end=self._val(vent_data["TimeStateEnd"]),
-                mode=self._val(vent_data["Mode"]),
+                mode=VentilationMode(self._val(vent_data["Mode"])),
                 flow_lvl_tgt=self._val(vent_data["FlowLvlTgt"]) if "FlowLvlTgt" in vent_data else None,
             )
 
@@ -242,6 +246,8 @@ class DucoClient:
             sensor = NodeSensorInfo(
                 co2=self._val(sensor_data["Co2"]) if "Co2" in sensor_data else None,
                 iaq_co2=self._val(sensor_data["IaqCo2"]) if "IaqCo2" in sensor_data else None,
+                rh=self._val(sensor_data["Rh"]) if "Rh" in sensor_data else None,
+                iaq_rh=self._val(sensor_data["IaqRh"]) if "IaqRh" in sensor_data else None,
             )
 
         return Node(

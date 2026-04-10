@@ -51,6 +51,14 @@ class VentilationMode(StrEnum):
     NONE = "-"
 
 
+class DiagStatus(StrEnum):
+    """Diagnostic subsystem status values."""
+
+    OK = "Ok"
+    DISABLE = "Disable"
+    ERROR = "Error"
+
+
 @dataclass(frozen=True, slots=True)
 class ApiInfo:
     """API version and endpoint information.
@@ -116,11 +124,11 @@ class DiagComponent:
 
     Attributes:
         component: Component name (e.g. ``"Ventilation"``).
-        status: Status string (e.g. ``"Ok"``).
+        status: Component status.
     """
 
     component: str
-    status: str
+    status: DiagStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,10 +138,14 @@ class NodeSensorInfo:
     Attributes:
         co2: CO2 concentration in ppm, or ``None`` if not available.
         iaq_co2: Indoor Air Quality index based on CO2 (0-100), or ``None``.
+        rh: Relative humidity in percent, or ``None`` if not available.
+        iaq_rh: Indoor Air Quality index based on humidity (0-100), or ``None``.
     """
 
     co2: int | None = None
     iaq_co2: int | None = None
+    rh: float | None = None
+    iaq_rh: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,7 +163,7 @@ class NodeVentilationInfo:
     state: VentilationState
     time_state_remain: int
     time_state_end: int
-    mode: str
+    mode: VentilationMode
     flow_lvl_tgt: int | None = None
 
 
@@ -160,18 +172,18 @@ class NodeGeneralInfo:
     """General information about a node.
 
     Attributes:
-        node_type: Node type (e.g. ``"BOX"``, ``"UCCO2"``).
+        node_type: Node type.
         sub_type: Node subtype number.
-        network_type: Connection type (``"VIRT"`` or ``"RF"``).
+        network_type: Connection type.
         parent: Parent node ID (0 = no parent).
         asso: Associated node ID (0 = no association).
         name: User-assigned name.
         identify: Identification mode (0 = off, 1 = on).
     """
 
-    node_type: str
+    node_type: NodeType
     sub_type: int
-    network_type: str
+    network_type: NetworkType
     parent: int
     asso: int
     name: str

@@ -108,6 +108,10 @@ def nodes_data():
                     "Mode": {"Val": "MANU"},
                     "FlowLvlTgt": {"Val": 15},
                 },
+                "Sensor": {
+                    "Rh": {"Val": 35.5},
+                    "IaqRh": {"Val": 83},
+                },
             },
             {
                 "Node": 2,
@@ -147,6 +151,10 @@ def nodes_data():
                     "TimeStateRemain": {"Val": 0},
                     "TimeStateEnd": {"Val": 0},
                     "Mode": {"Val": "-"},
+                },
+                "Sensor": {
+                    "Rh": {"Val": 36.0},
+                    "IaqRh": {"Val": 81},
                 },
             },
         ]

@@ -8,6 +8,7 @@ from aioresponses import aioresponses
 
 from duco.client import DucoClient
 from duco.exceptions import DucoConnectionError, DucoError
+from duco.models import DiagStatus, NetworkType, NodeType, VentilationState
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -85,7 +86,7 @@ async def test_get_diagnostics(client, base_url, diag_data):
         diags = await client.async_get_diagnostics()
     assert len(diags) == 3
     assert diags[0].component == "Ventilation"
-    assert diags[0].status == "Ok"
+    assert diags[0].status == DiagStatus.OK
 
 
 # ---------------------------------------------------------------------------
@@ -102,25 +103,33 @@ async def test_get_nodes(client, base_url, nodes_data):
 
     box = nodes[0]
     assert box.node_id == 1
-    assert box.general.node_type == "BOX"
-    assert box.general.network_type == "VIRT"
+    assert box.general.node_type == NodeType.BOX
+    assert box.general.network_type == NetworkType.VIRT
     assert box.ventilation is not None
-    assert box.ventilation.state == "CNT1"
+    assert box.ventilation.state == VentilationState.CNT1
     assert box.ventilation.flow_lvl_tgt == 15
-    assert box.sensor is None
+    assert box.sensor is not None
+    assert box.sensor.rh == 35.5
+    assert box.sensor.iaq_rh == 83
+    assert box.sensor.co2 is None
 
     ucco2 = nodes[1]
     assert ucco2.node_id == 2
-    assert ucco2.general.node_type == "UCCO2"
-    assert ucco2.general.network_type == "RF"
+    assert ucco2.general.node_type == NodeType.UCCO2
+    assert ucco2.general.network_type == NetworkType.RF
     assert ucco2.sensor is not None
     assert ucco2.sensor.co2 == 536
     assert ucco2.sensor.iaq_co2 == 100
+    assert ucco2.sensor.rh is None
+    assert ucco2.sensor.iaq_rh is None
 
     bsrh = nodes[2]
     assert bsrh.node_id == 113
-    assert bsrh.general.node_type == "BSRH"
-    assert bsrh.sensor is None
+    assert bsrh.general.node_type == NodeType.BSRH
+    assert bsrh.sensor is not None
+    assert bsrh.sensor.rh == 36.0
+    assert bsrh.sensor.iaq_rh == 81
+    assert bsrh.sensor.co2 is None
 
 
 # ---------------------------------------------------------------------------
@@ -134,7 +143,7 @@ async def test_get_node(client, base_url, nodes_data):
         m.get(f"{base_url}/info/nodes/1", payload=single_node)
         node = await client.async_get_node(1)
     assert node.node_id == 1
-    assert node.general.node_type == "BOX"
+    assert node.general.node_type == NodeType.BOX
 
 
 # ---------------------------------------------------------------------------

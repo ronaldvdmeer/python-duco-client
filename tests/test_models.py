@@ -8,11 +8,16 @@ from duco.models import (
     ApiInfo,
     BoardInfo,
     DiagComponent,
+    DiagStatus,
+    NetworkType,
     Node,
     NodeGeneralInfo,
     NodeSensorInfo,
+    NodeType,
     NodeVentilationInfo,
     SystemConfig,
+    VentilationMode,
+    VentilationState,
     Zone,
     ZoneGroup,
 )
@@ -66,23 +71,41 @@ class TestDiagComponent:
     """Test DiagComponent dataclass."""
 
     def test_create(self):
-        comp = DiagComponent(component="Ventilation", status="Ok")
+        comp = DiagComponent(component="Ventilation", status=DiagStatus.OK)
         assert comp.component == "Ventilation"
-        assert comp.status == "Ok"
+        assert comp.status == DiagStatus.OK
 
 
 class TestNodeSensorInfo:
     """Test NodeSensorInfo dataclass."""
 
     def test_full(self):
+        sensor = NodeSensorInfo(co2=536, iaq_co2=100, rh=35.5, iaq_rh=83)
+        assert sensor.co2 == 536
+        assert sensor.iaq_co2 == 100
+        assert sensor.rh == 35.5
+        assert sensor.iaq_rh == 83
+
+    def test_co2_only(self):
         sensor = NodeSensorInfo(co2=536, iaq_co2=100)
         assert sensor.co2 == 536
         assert sensor.iaq_co2 == 100
+        assert sensor.rh is None
+        assert sensor.iaq_rh is None
+
+    def test_rh_only(self):
+        sensor = NodeSensorInfo(rh=40.0, iaq_rh=90)
+        assert sensor.co2 is None
+        assert sensor.iaq_co2 is None
+        assert sensor.rh == 40.0
+        assert sensor.iaq_rh == 90
 
     def test_optional_fields_default_none(self):
         sensor = NodeSensorInfo()
         assert sensor.co2 is None
         assert sensor.iaq_co2 is None
+        assert sensor.rh is None
+        assert sensor.iaq_rh is None
 
 
 class TestNodeVentilationInfo:
@@ -90,21 +113,21 @@ class TestNodeVentilationInfo:
 
     def test_create(self):
         vent = NodeVentilationInfo(
-            state="CNT1",
+            state=VentilationState.CNT1,
             time_state_remain=0,
             time_state_end=0,
-            mode="MANU",
+            mode=VentilationMode.MANU,
             flow_lvl_tgt=15,
         )
-        assert vent.state == "CNT1"
+        assert vent.state == VentilationState.CNT1
         assert vent.flow_lvl_tgt == 15
 
     def test_flow_lvl_tgt_optional(self):
         vent = NodeVentilationInfo(
-            state="CNT1",
+            state=VentilationState.CNT1,
             time_state_remain=0,
             time_state_end=0,
-            mode="-",
+            mode=VentilationMode.NONE,
         )
         assert vent.flow_lvl_tgt is None
 
@@ -114,22 +137,22 @@ class TestNodeGeneralInfo:
 
     def test_create(self):
         general = NodeGeneralInfo(
-            node_type="BOX",
+            node_type=NodeType.BOX,
             sub_type=1,
-            network_type="VIRT",
+            network_type=NetworkType.VIRT,
             parent=0,
             asso=0,
             name="",
             identify=0,
         )
-        assert general.node_type == "BOX"
+        assert general.node_type == NodeType.BOX
         assert general.parent == 0
 
 
 class TestNode:
     """Test Node dataclass."""
 
-    def _make_general(self, node_type="BOX", network_type="VIRT", parent=0):
+    def _make_general(self, node_type=NodeType.BOX, network_type=NetworkType.VIRT, parent=0):
         return NodeGeneralInfo(
             node_type=node_type,
             sub_type=0,
@@ -140,7 +163,7 @@ class TestNode:
             identify=0,
         )
 
-    def _make_ventilation(self, state="CNT1", mode="MANU"):
+    def _make_ventilation(self, state=VentilationState.CNT1, mode=VentilationMode.MANU):
         return NodeVentilationInfo(
             state=state,
             time_state_remain=0,
@@ -155,14 +178,14 @@ class TestNode:
             ventilation=self._make_ventilation(),
         )
         assert node.node_id == 1
-        assert node.general.node_type == "BOX"
+        assert node.general.node_type == NodeType.BOX
         assert node.sensor is None
 
     def test_sensor_node(self):
         node = Node(
             node_id=2,
-            general=self._make_general(node_type="UCCO2", network_type="RF", parent=1),
-            ventilation=self._make_ventilation(mode="-"),
+            general=self._make_general(node_type=NodeType.UCCO2, network_type=NetworkType.RF, parent=1),
+            ventilation=self._make_ventilation(mode=VentilationMode.NONE),
             sensor=NodeSensorInfo(co2=536, iaq_co2=100),
         )
         assert node.sensor is not None
