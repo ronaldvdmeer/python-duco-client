@@ -469,6 +469,68 @@ class DucoClient:
             body["General"].setdefault("AutoRebootComm", {})["Time"] = auto_reboot_comm_time
         await self._request("PATCH", "/config", json=body)
 
+    async def async_get_zone_configs(self) -> list[Zone]:
+        """Return configuration for all zones.
+
+        Returns:
+            List of :class:`Zone` objects, one per zone.
+        """
+        data = await self._request("GET", "/config/zones")
+        return [self._parse_zone(zone_data) for zone_data in data["Zones"]]
+
+    async def async_get_zone_config(self, zone_id: int) -> Zone:
+        """Return configuration for a single zone.
+
+        Args:
+            zone_id: The zone ID.
+
+        Returns:
+            :class:`Zone` for the requested zone.
+        """
+        data = await self._request("GET", f"/config/zones/{zone_id}")
+        return self._parse_zone(data)
+
+    async def async_set_zone_name(self, zone_id: int, name: str) -> None:
+        """Set the name of a zone.
+
+        Args:
+            zone_id: The zone ID.
+            name: The new zone name.
+        """
+        await self._request(
+            "PATCH",
+            f"/config/zones/{zone_id}",
+            json={"DeviceGroupConfig": {"General": {"Name": name}}},
+        )
+
+    async def async_get_zone_group_config(self, zone_id: int, group_id: int) -> ZoneGroup:
+        """Return configuration for a single group within a zone.
+
+        Args:
+            zone_id: The zone ID.
+            group_id: The group ID.
+
+        Returns:
+            :class:`ZoneGroup` for the requested group.
+        """
+        data = await self._request("GET", f"/config/zones/{zone_id}/groups/{group_id}")
+        nodes = data.get("DeviceGroupConfig", {}).get("General", {}).get("Nodes", [])
+        return ZoneGroup(group_id=data["Group"], nodes=list(nodes))
+
+    async def async_set_zone_group_nodes(self, zone_id: int, group_id: int, node_ids: list[int]) -> None:
+        """Set the nodes assigned to a group.
+
+        Args:
+            zone_id: The zone ID.
+            group_id: The group ID.
+            node_ids: List of node IDs to assign to the group.
+        """
+        await self._request(
+            "PATCH",
+            f"/config/zones/{zone_id}/groups/{group_id}",
+            json={"DeviceGroupConfig": {"General": {"Nodes": node_ids}}},
+        )
+
     async def async_get_node_configs(self) -> list[NodeConfig]:
         """Return configuration for all nodes.
 

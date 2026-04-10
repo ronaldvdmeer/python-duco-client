@@ -233,3 +233,46 @@ def node_configs_data():
 def node_config_data():
     """Mock response for GET /config/nodes/{node}."""
     return {"Node": 2, "Name": {"Val": "Living Room"}}
+
+
+@pytest.fixture
+def zone_configs_data():
+    """Mock response for GET /config/zones."""
+    return {
+        "Zones": [
+            {
+                "Zone": 1,
+                "DeviceGroupConfig": {"General": {"Name": {"Val": "VentEtaCentral"}}},
+                "Groups": [
+                    {
+                        "Group": 1,
+                        "DeviceGroupConfig": {"General": {"Nodes": [2, 113]}},
+                    }
+                ],
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def zone_config_data():
+    """Mock response for GET /config/zones/{zone}."""
+    return {
+        "Zone": 1,
+        "DeviceGroupConfig": {"General": {"Name": {"Val": "VentEtaCentral"}}},
+        "Groups": [
+            {
+                "Group": 1,
+                "DeviceGroupConfig": {"General": {"Nodes": [2, 113]}},
+            }
+        ],
+    }
+
+
+@pytest.fixture
+def zone_group_config_data():
+    """Mock response for GET /config/zones/{zone}/groups/{group}."""
+    return {
+        "Group": 1,
+        "DeviceGroupConfig": {"General": {"Nodes": [2, 113]}},
+    }

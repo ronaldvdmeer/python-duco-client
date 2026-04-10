@@ -178,6 +178,64 @@ async def test_get_zones(client, base_url, zones_data):
 
 
 # ---------------------------------------------------------------------------
+# async_get_zone_configs / async_get_zone_config
+# ---------------------------------------------------------------------------
+
+
+async def test_get_zone_configs(client, base_url, zone_configs_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config/zones", payload=zone_configs_data)
+        result = await client.async_get_zone_configs()
+
+    assert len(result) == 1
+    zone = result[0]
+    assert zone.zone_id == 1
+    assert zone.name == "VentEtaCentral"
+    assert len(zone.groups) == 1
+    assert zone.groups[0].group_id == 1
+    assert sorted(zone.groups[0].nodes) == [2, 113]
+
+
+async def test_get_zone_config(client, base_url, zone_config_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config/zones/1", payload=zone_config_data)
+        result = await client.async_get_zone_config(1)
+
+    assert result.zone_id == 1
+    assert result.name == "VentEtaCentral"
+    assert len(result.groups) == 1
+    assert result.groups[0].nodes == [2, 113]
+
+
+async def test_set_zone_name(client, base_url):
+    with aioresponses() as m:
+        m.patch(f"{base_url}/config/zones/1", payload={})
+        await client.async_set_zone_name(1, "Living Area")
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
+# async_get_zone_group_config / async_set_zone_group_nodes
+# ---------------------------------------------------------------------------
+
+
+async def test_get_zone_group_config(client, base_url, zone_group_config_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config/zones/1/groups/1", payload=zone_group_config_data)
+        result = await client.async_get_zone_group_config(1, 1)
+
+    assert result.group_id == 1
+    assert sorted(result.nodes) == [2, 113]
+
+
+async def test_set_zone_group_nodes(client, base_url):
+    with aioresponses() as m:
+        m.patch(f"{base_url}/config/zones/1/groups/1", payload={})
+        await client.async_set_zone_group_nodes(1, 1, [2, 113])
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
 # async_set_ventilation_state
 # ---------------------------------------------------------------------------
 
