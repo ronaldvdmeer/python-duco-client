@@ -11,6 +11,7 @@ from duco.models import (
     DiagStatus,
     NetworkType,
     Node,
+    NodeConfig,
     NodeGeneralInfo,
     NodeSensorInfo,
     NodeType,
@@ -261,3 +262,21 @@ class TestSystemConfig:
         config = self._make()
         with pytest.raises(AttributeError):
             config.time_zone = 2  # type: ignore[misc]
+
+
+class TestNodeConfig:
+    """Tests for the NodeConfig model."""
+
+    def test_create(self):
+        config = NodeConfig(node_id=2, name="Living Room")
+        assert config.node_id == 2
+        assert config.name == "Living Room"
+
+    def test_empty_name(self):
+        config = NodeConfig(node_id=1, name="")
+        assert config.name == ""
+
+    def test_frozen(self):
+        config = NodeConfig(node_id=2, name="Living Room")
+        with pytest.raises(AttributeError):
+            config.name = "Other"  # type: ignore[misc]

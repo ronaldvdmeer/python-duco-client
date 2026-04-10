@@ -19,6 +19,7 @@ from .models import (
     LanInfo,
     NetworkType,
     Node,
+    NodeConfig,
     NodeGeneralInfo,
     NodeSensorInfo,
     NodeType,
@@ -467,6 +468,30 @@ class DucoClient:
         if auto_reboot_comm_time is not None:
             body["General"].setdefault("AutoRebootComm", {})["Time"] = auto_reboot_comm_time
         await self._request("PATCH", "/config", json=body)
+
+    async def async_get_node_configs(self) -> list[NodeConfig]:
+        """Return configuration for all nodes.
+
+        Returns:
+            List of :class:`NodeConfig` objects, one per node.
+        """
+        data = await self._request("GET", "/config/nodes")
+        return [
+            NodeConfig(node_id=item["Node"], name=self._val(item["Name"]))
+            for item in data["Nodes"]
+        ]
+
+    async def async_get_node_config(self, node_id: int) -> NodeConfig:
+        """Return configuration for a single node.
+
+        Args:
+            node_id: The node ID.
+
+        Returns:
+            :class:`NodeConfig` for the requested node.
+        """
+        data = await self._request("GET", f"/config/nodes/{node_id}")
+        return NodeConfig(node_id=data["Node"], name=self._val(data["Name"]))
 
     async def async_set_node_name(self, node_id: int, name: str) -> None:
         """Set the name of a node.

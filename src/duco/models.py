@@ -270,3 +270,16 @@ class SystemConfig:
     lan_wifi_client_key: str
     auto_reboot_comm_period: int
     auto_reboot_comm_time: int
+
+
+@dataclass(frozen=True, slots=True)
+class NodeConfig:
+    """Configuration of a single node.
+
+    Attributes:
+        node_id: The node identifier.
+        name: User-assigned name for the node (empty string if not set).
+    """
+
+    node_id: int
+    name: str

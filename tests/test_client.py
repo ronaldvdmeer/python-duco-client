@@ -307,6 +307,27 @@ async def test_set_system_config_wifi(client, base_url):
     # No exception means success
 
 
+async def test_get_node_configs(client, base_url, node_configs_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config/nodes", payload=node_configs_data)
+        result = await client.async_get_node_configs()
+    assert len(result) == 3
+    assert result[0].node_id == 1
+    assert result[0].name == ""
+    assert result[1].node_id == 2
+    assert result[1].name == "Living Room"
+    assert result[2].node_id == 113
+    assert result[2].name == ""
+
+
+async def test_get_node_config(client, base_url, node_config_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config/nodes/2", payload=node_config_data)
+        result = await client.async_get_node_config(2)
+    assert result.node_id == 2
+    assert result.name == "Living Room"
+
+
 # ---------------------------------------------------------------------------
 # Error handling
 # ---------------------------------------------------------------------------
