@@ -341,6 +341,32 @@ async def test_scan_wifi(client, base_url):
 
 
 # ---------------------------------------------------------------------------
+# async_set_time / async_set_wifi_ap_mode
+# ---------------------------------------------------------------------------
+
+
+async def test_set_time(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_set_time(1775082497)
+    # No exception means success
+
+
+async def test_set_wifi_ap_mode_enable(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_set_wifi_ap_mode(enabled=True)
+    # No exception means success
+
+
+async def test_set_wifi_ap_mode_disable(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action", payload={})
+        await client.async_set_wifi_ap_mode(enabled=False)
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
 # async_set_node_name
 # ---------------------------------------------------------------------------
 

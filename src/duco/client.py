@@ -424,6 +424,36 @@ class DucoClient:
             json={"Action": "ScanWifi"},
         )
 
+    async def async_set_time(self, timestamp: int) -> None:
+        """Set the system time on the box.
+
+        Args:
+            timestamp: Unix timestamp (seconds since epoch).
+
+        Raises:
+            DucoRateLimitError: If the write rate limit is exceeded.
+        """
+        await self._request(
+            "POST",
+            "/action",
+            json={"Action": "SetTime", "Val": timestamp},
+        )
+
+    async def async_set_wifi_ap_mode(self, *, enabled: bool) -> None:
+        """Enable or disable WiFi access point mode.
+
+        Args:
+            enabled: Whether to enable access point mode.
+
+        Raises:
+            DucoRateLimitError: If the write rate limit is exceeded.
+        """
+        await self._request(
+            "POST",
+            "/action",
+            json={"Action": "SetWifiApMode", "Val": enabled},
+        )
+
     # -------------------------------------------------------------------------
     # Config
     # -------------------------------------------------------------------------
