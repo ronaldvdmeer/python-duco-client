@@ -221,3 +221,40 @@ class Zone:
     zone_id: int
     name: str
     groups: list[ZoneGroup] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class SystemConfig:
+    """System configuration of the Duco box.
+
+    Attributes:
+        time_zone: UTC offset in hours (``-11`` to ``12``).
+        dst: Daylight saving time enabled (``0`` or ``1``).
+        modbus_addr: Modbus device address (``1`` to ``254``).
+        modbus_offset: Modbus address offset (``0`` or ``1``).
+        lan_mode: LAN mode (read-only on most boxes).
+        lan_dhcp: DHCP enabled (``0`` = static, ``1`` = DHCP).
+        lan_static_ip: Static IP address.
+        lan_static_net_mask: Static subnet mask.
+        lan_static_default_gateway: Static default gateway.
+        lan_static_dns: Static DNS server.
+        lan_wifi_client_ssid: WiFi SSID to connect to.
+        lan_wifi_client_key: WiFi password.
+        auto_reboot_comm_period: Auto-reboot period in days (``0`` = disabled, max ``365``).
+        auto_reboot_comm_time: Auto-reboot time of day in minutes since midnight (``0``–``1439``).
+    """
+
+    time_zone: int
+    dst: int
+    modbus_addr: int
+    modbus_offset: int
+    lan_mode: int
+    lan_dhcp: int
+    lan_static_ip: str
+    lan_static_net_mask: str
+    lan_static_default_gateway: str
+    lan_static_dns: str
+    lan_wifi_client_ssid: str
+    lan_wifi_client_key: str
+    auto_reboot_comm_period: int
+    auto_reboot_comm_time: int
