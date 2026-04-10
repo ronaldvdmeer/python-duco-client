@@ -5,12 +5,14 @@ from __future__ import annotations
 import pytest
 
 from duco.models import (
+    ActionInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
     DiagStatus,
     NetworkType,
     Node,
+    NodeActions,
     NodeConfig,
     NodeGeneralInfo,
     NodeSensorInfo,
@@ -280,3 +282,48 @@ class TestNodeConfig:
         config = NodeConfig(node_id=2, name="Living Room")
         with pytest.raises(AttributeError):
             config.name = "Other"  # type: ignore[misc]
+
+
+class TestActionInfo:
+    """Tests for the ActionInfo model."""
+
+    def test_create_simple(self):
+        action = ActionInfo(action="SetTime", val_type="Integer")
+        assert action.action == "SetTime"
+        assert action.val_type == "Integer"
+        assert action.enum_values == []
+
+    def test_create_with_enum(self):
+        action = ActionInfo(
+            action="SetVentilationState",
+            val_type="Enum",
+            enum_values=["AUTO", "MAN1", "MAN2"],
+        )
+        assert action.enum_values == ["AUTO", "MAN1", "MAN2"]
+
+    def test_frozen(self):
+        action = ActionInfo(action="ScanWifi", val_type="None")
+        with pytest.raises(AttributeError):
+            action.action = "Other"  # type: ignore[misc]
+
+
+class TestNodeActions:
+    """Tests for the NodeActions model."""
+
+    def test_create(self):
+        actions = [
+            ActionInfo(action="SetVentilationState", val_type="Enum"),
+            ActionInfo(action="SetIdentify", val_type="Boolean"),
+        ]
+        node_actions = NodeActions(node_id=1, actions=actions)
+        assert node_actions.node_id == 1
+        assert len(node_actions.actions) == 2
+
+    def test_empty_actions(self):
+        node_actions = NodeActions(node_id=2)
+        assert node_actions.actions == []
+
+    def test_frozen(self):
+        node_actions = NodeActions(node_id=1)
+        with pytest.raises(AttributeError):
+            node_actions.node_id = 2  # type: ignore[misc]

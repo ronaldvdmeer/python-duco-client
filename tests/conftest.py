@@ -276,3 +276,60 @@ def zone_group_config_data():
         "Group": 1,
         "DeviceGroupConfig": {"General": {"Nodes": [2, 113]}},
     }
+
+
+@pytest.fixture
+def actions_data():
+    """Mock response for GET /action."""
+    return [
+        {"Action": "SetTime", "ValType": "Integer"},
+        {"Action": "SetIdentify", "ValType": "Boolean"},
+        {"Action": "SetWifiApMode", "ValType": "Boolean"},
+        {"Action": "ScanWifi", "ValType": "None"},
+    ]
+
+
+@pytest.fixture
+def node_actions_data():
+    """Mock response for GET /action/nodes."""
+    return {
+        "Nodes": [
+            {
+                "Node": 1,
+                "Actions": [
+                    {
+                        "Action": "SetVentilationState",
+                        "ValType": "Enum",
+                        "Enum": ["AUTO", "MAN1", "MAN2", "MAN3"],
+                    },
+                    {"Action": "SetIdentify", "ValType": "Boolean"},
+                ],
+            },
+            {
+                "Node": 113,
+                "Actions": [
+                    {
+                        "Action": "SetVentilationState",
+                        "ValType": "Enum",
+                        "Enum": ["AUTO", "MAN1", "MAN2", "MAN3"],
+                    },
+                ],
+            },
+        ]
+    }
+
+
+@pytest.fixture
+def node_action_list_data():
+    """Mock response for GET /action/nodes/{node}."""
+    return {
+        "Node": 1,
+        "Actions": [
+            {
+                "Action": "SetVentilationState",
+                "ValType": "Enum",
+                "Enum": ["AUTO", "MAN1", "MAN2", "MAN3"],
+            },
+            {"Action": "SetIdentify", "ValType": "Boolean"},
+        ],
+    }

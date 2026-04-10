@@ -11,6 +11,7 @@ from .exceptions import (
     DucoRateLimitError,
 )
 from .models import (
+    ActionInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
@@ -18,6 +19,7 @@ from .models import (
     LanInfo,
     NetworkType,
     Node,
+    NodeActions,
     NodeConfig,
     NodeGeneralInfo,
     NodeSensorInfo,
@@ -36,6 +38,7 @@ except PackageNotFoundError:
     __version__ = "0.0.0"
 
 __all__ = [
+    "ActionInfo",
     "ApiInfo",
     "BoardInfo",
     "DiagComponent",
@@ -47,6 +50,7 @@ __all__ = [
     "LanInfo",
     "NetworkType",
     "Node",
+    "NodeActions",
     "NodeConfig",
     "NodeGeneralInfo",
     "NodeSensorInfo",

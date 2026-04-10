@@ -283,3 +283,33 @@ class NodeConfig:
 
     node_id: int
     name: str
+
+
+@dataclass(frozen=True, slots=True)
+class ActionInfo:
+    """A single action available on the box or a node.
+
+    Attributes:
+        action: Action name (e.g. ``SetTime``, ``SetVentilationState``).
+        val_type: Value type required by the action (``Integer``, ``Boolean``,
+            ``Enum``, ``None``).
+        enum_values: Allowed values when ``val_type`` is ``Enum``; empty list
+            otherwise.
+    """
+
+    action: str
+    val_type: str
+    enum_values: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class NodeActions:
+    """Available actions for a single node.
+
+    Attributes:
+        node_id: The node identifier.
+        actions: List of actions supported by this node.
+    """
+
+    node_id: int
+    actions: list[ActionInfo] = field(default_factory=list)
