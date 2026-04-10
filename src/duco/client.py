@@ -23,6 +23,7 @@ from .models import (
     NodeSensorInfo,
     NodeType,
     NodeVentilationInfo,
+    SystemConfig,
     VentilationMode,
     Zone,
     ZoneGroup,
@@ -375,6 +376,97 @@ class DucoClient:
     # -------------------------------------------------------------------------
     # Config
     # -------------------------------------------------------------------------
+
+    async def async_get_system_config(self) -> SystemConfig:
+        """Get the system configuration.
+
+        Returns:
+            System configuration including time, network, and reboot settings.
+        """
+        data = await self._request("GET", "/config", params={"module": "General"})
+        general = data["General"]
+        return SystemConfig(
+            time_zone=self._val(general["Time"]["TimeZone"]),
+            dst=self._val(general["Time"]["Dst"]),
+            modbus_addr=self._val(general["Modbus"]["Addr"]),
+            modbus_offset=self._val(general["Modbus"]["Offset"]),
+            lan_mode=self._val(general["Lan"]["Mode"]),
+            lan_dhcp=self._val(general["Lan"]["Dhcp"]),
+            lan_static_ip=self._val(general["Lan"]["StaticIp"]),
+            lan_static_net_mask=self._val(general["Lan"]["StaticNetMask"]),
+            lan_static_default_gateway=self._val(general["Lan"]["StaticDefaultGateway"]),
+            lan_static_dns=self._val(general["Lan"]["StaticDns"]),
+            lan_wifi_client_ssid=self._val(general["Lan"]["WifiClientSsid"]),
+            lan_wifi_client_key=self._val(general["Lan"]["WifiClientKey"]),
+            auto_reboot_comm_period=self._val(general["AutoRebootComm"]["Period"]),
+            auto_reboot_comm_time=self._val(general["AutoRebootComm"]["Time"]),
+        )
+
+    async def async_set_system_config(
+        self,
+        *,
+        time_zone: int | None = None,
+        dst: int | None = None,
+        modbus_addr: int | None = None,
+        modbus_offset: int | None = None,
+        lan_dhcp: int | None = None,
+        lan_static_ip: str | None = None,
+        lan_static_net_mask: str | None = None,
+        lan_static_default_gateway: str | None = None,
+        lan_static_dns: str | None = None,
+        lan_wifi_client_ssid: str | None = None,
+        lan_wifi_client_key: str | None = None,
+        auto_reboot_comm_period: int | None = None,
+        auto_reboot_comm_time: int | None = None,
+    ) -> None:
+        """Update system configuration (partial update).
+
+        Only the provided keyword arguments are sent. Omitted arguments are not
+        included in the request, leaving those settings unchanged on the box.
+
+        Args:
+            time_zone: UTC offset in hours (``-11`` to ``12``).
+            dst: Daylight saving time (``0`` = off, ``1`` = on).
+            modbus_addr: Modbus device address (``1`` to ``254``).
+            modbus_offset: Modbus address offset (``0`` or ``1``).
+            lan_dhcp: DHCP enabled (``0`` = static, ``1`` = DHCP).
+            lan_static_ip: Static IP address.
+            lan_static_net_mask: Static subnet mask.
+            lan_static_default_gateway: Static default gateway.
+            lan_static_dns: Static DNS server.
+            lan_wifi_client_ssid: WiFi SSID to connect to.
+            lan_wifi_client_key: WiFi password.
+            auto_reboot_comm_period: Auto-reboot period in days (``0`` = disabled).
+            auto_reboot_comm_time: Auto-reboot time in minutes since midnight.
+        """
+        body: dict[str, Any] = {"General": {}}
+        if time_zone is not None:
+            body["General"].setdefault("Time", {})["TimeZone"] = time_zone
+        if dst is not None:
+            body["General"].setdefault("Time", {})["Dst"] = dst
+        if modbus_addr is not None:
+            body["General"].setdefault("Modbus", {})["Addr"] = modbus_addr
+        if modbus_offset is not None:
+            body["General"].setdefault("Modbus", {})["Offset"] = modbus_offset
+        if lan_dhcp is not None:
+            body["General"].setdefault("Lan", {})["Dhcp"] = lan_dhcp
+        if lan_static_ip is not None:
+            body["General"].setdefault("Lan", {})["StaticIp"] = lan_static_ip
+        if lan_static_net_mask is not None:
+            body["General"].setdefault("Lan", {})["StaticNetMask"] = lan_static_net_mask
+        if lan_static_default_gateway is not None:
+            body["General"].setdefault("Lan", {})["StaticDefaultGateway"] = lan_static_default_gateway
+        if lan_static_dns is not None:
+            body["General"].setdefault("Lan", {})["StaticDns"] = lan_static_dns
+        if lan_wifi_client_ssid is not None:
+            body["General"].setdefault("Lan", {})["WifiClientSsid"] = lan_wifi_client_ssid
+        if lan_wifi_client_key is not None:
+            body["General"].setdefault("Lan", {})["WifiClientKey"] = lan_wifi_client_key
+        if auto_reboot_comm_period is not None:
+            body["General"].setdefault("AutoRebootComm", {})["Period"] = auto_reboot_comm_period
+        if auto_reboot_comm_time is not None:
+            body["General"].setdefault("AutoRebootComm", {})["Time"] = auto_reboot_comm_time
+        await self._request("PATCH", "/config", json=body)
 
     async def async_set_node_name(self, node_id: int, name: str) -> None:
         """Set the name of a node.

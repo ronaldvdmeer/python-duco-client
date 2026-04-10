@@ -184,3 +184,34 @@ def zones_data():
             }
         ]
     }
+
+
+@pytest.fixture
+def system_config_data():
+    """Mock response for GET /config?module=General."""
+    return {
+        "General": {
+            "Time": {
+                "TimeZone": {"Val": 1, "Min": -11, "Inc": 1, "Max": 12},
+                "Dst": {"Val": 1, "Min": 0, "Inc": 1, "Max": 1},
+            },
+            "Modbus": {
+                "Addr": {"Val": 1, "Min": 1, "Inc": 1, "Max": 254},
+                "Offset": {"Val": 1, "Min": 0, "Inc": 1, "Max": 1},
+            },
+            "Lan": {
+                "Mode": {"Val": 1, "Min": 1, "Inc": 1, "Max": 1},
+                "Dhcp": {"Val": 1, "Min": 0, "Inc": 1, "Max": 1},
+                "StaticIp": {"Val": "0.0.0.0"},
+                "StaticNetMask": {"Val": "255.255.255.0"},
+                "StaticDefaultGateway": {"Val": "0.0.0.0"},
+                "StaticDns": {"Val": "8.8.8.8"},
+                "WifiClientSsid": {"Val": "IoT Wi-Fi"},
+                "WifiClientKey": {"Val": ""},
+            },
+            "AutoRebootComm": {
+                "Period": {"Val": 7, "Min": 0, "Inc": 1, "Max": 365},
+                "Time": {"Val": 0, "Min": 0, "Inc": 1, "Max": 1439},
+            },
+        }
+    }

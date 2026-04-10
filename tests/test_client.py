@@ -250,6 +250,64 @@ async def test_set_node_name(client, base_url):
 
 
 # ---------------------------------------------------------------------------
+# async_get_system_config
+# ---------------------------------------------------------------------------
+
+
+async def test_get_system_config(client, base_url, system_config_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/config?module=General", payload=system_config_data)
+        config = await client.async_get_system_config()
+    assert config.time_zone == 1
+    assert config.dst == 1
+    assert config.modbus_addr == 1
+    assert config.modbus_offset == 1
+    assert config.lan_mode == 1
+    assert config.lan_dhcp == 1
+    assert config.lan_static_ip == "0.0.0.0"
+    assert config.lan_static_net_mask == "255.255.255.0"
+    assert config.lan_static_default_gateway == "0.0.0.0"
+    assert config.lan_static_dns == "8.8.8.8"
+    assert config.lan_wifi_client_ssid == "IoT Wi-Fi"
+    assert config.lan_wifi_client_key == ""
+    assert config.auto_reboot_comm_period == 7
+    assert config.auto_reboot_comm_time == 0
+
+
+# ---------------------------------------------------------------------------
+# async_set_system_config
+# ---------------------------------------------------------------------------
+
+
+async def test_set_system_config_time_zone(client, base_url):
+    with aioresponses() as m:
+        m.patch(f"{base_url}/config", payload={})
+        await client.async_set_system_config(time_zone=2)
+    # No exception means success
+
+
+async def test_set_system_config_multiple_fields(client, base_url):
+    with aioresponses() as m:
+        m.patch(f"{base_url}/config", payload={})
+        await client.async_set_system_config(
+            time_zone=2,
+            dst=0,
+            auto_reboot_comm_period=14,
+        )
+    # No exception means success
+
+
+async def test_set_system_config_wifi(client, base_url):
+    with aioresponses() as m:
+        m.patch(f"{base_url}/config", payload={})
+        await client.async_set_system_config(
+            lan_wifi_client_ssid="MyNetwork",
+            lan_wifi_client_key="secret",
+        )
+    # No exception means success
+
+
+# ---------------------------------------------------------------------------
 # Error handling
 # ---------------------------------------------------------------------------
 

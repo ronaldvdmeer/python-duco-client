@@ -15,6 +15,7 @@ from duco.models import (
     NodeSensorInfo,
     NodeType,
     NodeVentilationInfo,
+    SystemConfig,
     VentilationMode,
     VentilationState,
     Zone,
@@ -225,3 +226,38 @@ class TestZone:
     def test_empty_groups_default(self):
         zone = Zone(zone_id=1, name="Test")
         assert zone.groups == []
+
+
+class TestSystemConfig:
+    """Test SystemConfig dataclass."""
+
+    def _make(self, **kwargs: object) -> SystemConfig:
+        defaults: dict[str, object] = {
+            "time_zone": 1,
+            "dst": 1,
+            "modbus_addr": 1,
+            "modbus_offset": 1,
+            "lan_mode": 1,
+            "lan_dhcp": 1,
+            "lan_static_ip": "0.0.0.0",
+            "lan_static_net_mask": "255.255.255.0",
+            "lan_static_default_gateway": "0.0.0.0",
+            "lan_static_dns": "8.8.8.8",
+            "lan_wifi_client_ssid": "IoT Wi-Fi",
+            "lan_wifi_client_key": "",
+            "auto_reboot_comm_period": 7,
+            "auto_reboot_comm_time": 0,
+        }
+        defaults.update(kwargs)
+        return SystemConfig(**defaults)  # type: ignore[arg-type]
+
+    def test_create(self):
+        config = self._make()
+        assert config.time_zone == 1
+        assert config.lan_wifi_client_ssid == "IoT Wi-Fi"
+        assert config.auto_reboot_comm_period == 7
+
+    def test_frozen(self):
+        config = self._make()
+        with pytest.raises(AttributeError):
+            config.time_zone = 2  # type: ignore[misc]
