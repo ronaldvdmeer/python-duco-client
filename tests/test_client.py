@@ -236,6 +236,51 @@ async def test_set_zone_group_nodes(client, base_url):
 
 
 # ---------------------------------------------------------------------------
+# async_get_actions / async_get_node_actions / async_get_node_action_list
+# ---------------------------------------------------------------------------
+
+
+async def test_get_actions(client, base_url, actions_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/action", payload=actions_data)
+        result = await client.async_get_actions()
+
+    assert len(result) == 4
+    set_time = result[0]
+    assert set_time.action == "SetTime"
+    assert set_time.val_type == "Integer"
+    assert set_time.enum_values == []
+
+
+async def test_get_node_actions(client, base_url, node_actions_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/action/nodes", payload=node_actions_data)
+        result = await client.async_get_node_actions()
+
+    assert len(result) == 2
+    node1 = result[0]
+    assert node1.node_id == 1
+    assert len(node1.actions) == 2
+    vent_action = node1.actions[0]
+    assert vent_action.action == "SetVentilationState"
+    assert vent_action.val_type == "Enum"
+    assert "AUTO" in vent_action.enum_values
+    assert "MAN3" in vent_action.enum_values
+
+
+async def test_get_node_action_list(client, base_url, node_action_list_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/action/nodes/1", payload=node_action_list_data)
+        result = await client.async_get_node_action_list(1)
+
+    assert result.node_id == 1
+    assert len(result.actions) == 2
+    assert result.actions[0].action == "SetVentilationState"
+    assert result.actions[1].action == "SetIdentify"
+    assert result.actions[1].enum_values == []
+
+
+# ---------------------------------------------------------------------------
 # async_set_ventilation_state
 # ---------------------------------------------------------------------------
 

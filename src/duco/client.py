@@ -12,6 +12,7 @@ from .exceptions import (
     DucoError,
 )
 from .models import (
+    ActionInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
@@ -19,6 +20,7 @@ from .models import (
     LanInfo,
     NetworkType,
     Node,
+    NodeActions,
     NodeConfig,
     NodeGeneralInfo,
     NodeSensorInfo,
@@ -315,6 +317,54 @@ class DucoClient:
     # -------------------------------------------------------------------------
     # Actions
     # -------------------------------------------------------------------------
+
+    async def async_get_actions(self) -> list[ActionInfo]:
+        """Return all actions available on the box.
+
+        Returns:
+            List of :class:`ActionInfo` objects.
+        """
+        data = await self._request("GET", "/action")
+        return [self._parse_action(item) for item in data]
+
+    async def async_get_node_actions(self) -> list[NodeActions]:
+        """Return available actions for all nodes.
+
+        Returns:
+            List of :class:`NodeActions`, one per node.
+        """
+        data = await self._request("GET", "/action/nodes")
+        return [
+            NodeActions(
+                node_id=node_data["Node"],
+                actions=[self._parse_action(a) for a in node_data.get("Actions", [])],
+            )
+            for node_data in data["Nodes"]
+        ]
+
+    async def async_get_node_action_list(self, node_id: int) -> NodeActions:
+        """Return available actions for a single node.
+
+        Args:
+            node_id: The node ID.
+
+        Returns:
+            :class:`NodeActions` for the requested node.
+        """
+        data = await self._request("GET", f"/action/nodes/{node_id}")
+        return NodeActions(
+            node_id=data["Node"],
+            actions=[self._parse_action(a) for a in data.get("Actions", [])],
+        )
+
+    @staticmethod
+    def _parse_action(data: dict[str, Any]) -> ActionInfo:
+        """Parse an action descriptor from the API response."""
+        return ActionInfo(
+            action=data["Action"],
+            val_type=data["ValType"],
+            enum_values=list(data.get("Enum", [])),
+        )
 
     async def async_set_ventilation_state(self, node_id: int, state: str) -> None:
         """Set the ventilation state for a node.
