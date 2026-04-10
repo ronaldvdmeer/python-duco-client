@@ -476,10 +476,7 @@ class DucoClient:
             List of :class:`NodeConfig` objects, one per node.
         """
         data = await self._request("GET", "/config/nodes")
-        return [
-            NodeConfig(node_id=item["Node"], name=self._val(item["Name"]))
-            for item in data["Nodes"]
-        ]
+        return [NodeConfig(node_id=item["Node"], name=self._val(item["Name"])) for item in data["Nodes"]]
 
     async def async_get_node_config(self, node_id: int) -> NodeConfig:
         """Return configuration for a single node.
