@@ -215,3 +215,21 @@ def system_config_data():
             },
         }
     }
+
+
+@pytest.fixture
+def node_configs_data():
+    """Mock response for GET /config/nodes."""
+    return {
+        "Nodes": [
+            {"Node": 1, "Name": {"Val": ""}},
+            {"Node": 2, "Name": {"Val": "Living Room"}},
+            {"Node": 113, "Name": {"Val": ""}},
+        ]
+    }
+
+
+@pytest.fixture
+def node_config_data():
+    """Mock response for GET /config/nodes/{node}."""
+    return {"Node": 2, "Name": {"Val": "Living Room"}}
