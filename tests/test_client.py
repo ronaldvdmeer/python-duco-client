@@ -108,7 +108,10 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert box.ventilation is not None
     assert box.ventilation.state == VentilationState.CNT1
     assert box.ventilation.flow_lvl_tgt == 15
-    assert box.sensor is None
+    assert box.sensor is not None
+    assert box.sensor.rh == 35.5
+    assert box.sensor.iaq_rh == 83
+    assert box.sensor.co2 is None
 
     ucco2 = nodes[1]
     assert ucco2.node_id == 2
@@ -117,11 +120,16 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert ucco2.sensor is not None
     assert ucco2.sensor.co2 == 536
     assert ucco2.sensor.iaq_co2 == 100
+    assert ucco2.sensor.rh is None
+    assert ucco2.sensor.iaq_rh is None
 
     bsrh = nodes[2]
     assert bsrh.node_id == 113
     assert bsrh.general.node_type == NodeType.BSRH
-    assert bsrh.sensor is None
+    assert bsrh.sensor is not None
+    assert bsrh.sensor.rh == 36.0
+    assert bsrh.sensor.iaq_rh == 81
+    assert bsrh.sensor.co2 is None
 
 
 # ---------------------------------------------------------------------------

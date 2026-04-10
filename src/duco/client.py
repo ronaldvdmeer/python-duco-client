@@ -245,6 +245,8 @@ class DucoClient:
             sensor = NodeSensorInfo(
                 co2=self._val(sensor_data["Co2"]) if "Co2" in sensor_data else None,
                 iaq_co2=self._val(sensor_data["IaqCo2"]) if "IaqCo2" in sensor_data else None,
+                rh=self._val(sensor_data["Rh"]) if "Rh" in sensor_data else None,
+                iaq_rh=self._val(sensor_data["IaqRh"]) if "IaqRh" in sensor_data else None,
             )
 
         return Node(

@@ -138,10 +138,14 @@ class NodeSensorInfo:
     Attributes:
         co2: CO2 concentration in ppm, or ``None`` if not available.
         iaq_co2: Indoor Air Quality index based on CO2 (0-100), or ``None``.
+        rh: Relative humidity in percent, or ``None`` if not available.
+        iaq_rh: Indoor Air Quality index based on humidity (0-100), or ``None``.
     """
 
     co2: int | None = None
     iaq_co2: int | None = None
+    rh: float | None = None
+    iaq_rh: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
