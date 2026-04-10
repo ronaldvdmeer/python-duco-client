@@ -74,14 +74,32 @@ class TestNodeSensorInfo:
     """Test NodeSensorInfo dataclass."""
 
     def test_full(self):
+        sensor = NodeSensorInfo(co2=536, iaq_co2=100, rh=35.5, iaq_rh=83)
+        assert sensor.co2 == 536
+        assert sensor.iaq_co2 == 100
+        assert sensor.rh == 35.5
+        assert sensor.iaq_rh == 83
+
+    def test_co2_only(self):
         sensor = NodeSensorInfo(co2=536, iaq_co2=100)
         assert sensor.co2 == 536
         assert sensor.iaq_co2 == 100
+        assert sensor.rh is None
+        assert sensor.iaq_rh is None
+
+    def test_rh_only(self):
+        sensor = NodeSensorInfo(rh=40.0, iaq_rh=90)
+        assert sensor.co2 is None
+        assert sensor.iaq_co2 is None
+        assert sensor.rh == 40.0
+        assert sensor.iaq_rh == 90
 
     def test_optional_fields_default_none(self):
         sensor = NodeSensorInfo()
         assert sensor.co2 is None
         assert sensor.iaq_co2 is None
+        assert sensor.rh is None
+        assert sensor.iaq_rh is None
 
 
 class TestNodeVentilationInfo:
