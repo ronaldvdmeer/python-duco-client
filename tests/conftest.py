@@ -72,6 +72,28 @@ def lan_info_data():
 
 
 @pytest.fixture
+def lan_info_ethernet_data():
+    """Mock response for GET /info?module=General&submodule=Lan on an ethernet-connected box."""
+    return {
+        "General": {
+            "Lan": {
+                "Mode": {"Val": "ETHERNET"},
+                "Ip": {"Val": "192.168.1.97"},
+                "NetMask": {"Val": "255.255.255.0"},
+                "DefaultGateway": {"Val": "192.168.1.1"},
+                "Dns": {"Val": "192.168.1.1"},
+                "Mac": {"Val": "a0:dd:6c:06:12:93"},
+                "HostName": {"Val": "duco_061293"},
+                "DucoClientIp": {"Val": "0.0.0.0"},
+                "WifiApSsid": {"Val": "DUCO"},
+                "WifiApKey": {"Val": "12345678"},
+                "ScanWifi": [],
+            }
+        }
+    }
+
+
+@pytest.fixture
 def diag_data():
     """Mock response for GET /info?module=Diag."""
     return {

@@ -105,7 +105,7 @@ class LanInfo:
         dns: DNS server address.
         mac: MAC address.
         host_name: Hostname on the network.
-        rssi_wifi: WiFi signal strength in dBm.
+        rssi_wifi: WiFi signal strength in dBm, or None if the box is connected via ethernet.
     """
 
     mode: str
@@ -115,7 +115,7 @@ class LanInfo:
     dns: str
     mac: str
     host_name: str
-    rssi_wifi: int
+    rssi_wifi: int | None
 
 
 @dataclass(frozen=True, slots=True)
