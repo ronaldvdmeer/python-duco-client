@@ -72,6 +72,18 @@ async def test_get_lan_info(client, base_url, lan_info_data):
     assert lan.rssi_wifi == -44
 
 
+async def test_get_lan_info_ethernet(client, base_url, lan_info_ethernet_data):
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Lan",
+            payload=lan_info_ethernet_data,
+        )
+        lan = await client.async_get_lan_info()
+    assert lan.mode == "ETHERNET"
+    assert lan.ip == "192.168.1.97"
+    assert lan.rssi_wifi is None
+
+
 # ---------------------------------------------------------------------------
 # async_get_diagnostics
 # ---------------------------------------------------------------------------

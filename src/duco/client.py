@@ -163,7 +163,7 @@ class DucoClient:
             dns=self._val(lan["Dns"]),
             mac=self._val(lan["Mac"]),
             host_name=self._val(lan["HostName"]),
-            rssi_wifi=self._val(lan["RssiWifi"]),
+            rssi_wifi=self._val(lan["RssiWifi"]) if "RssiWifi" in lan else None,
         )
 
     async def async_get_diagnostics(self) -> list[DiagComponent]:
