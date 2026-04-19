@@ -7,7 +7,7 @@ import pytest
 from aioresponses import aioresponses
 
 from duco.client import DucoClient
-from duco.exceptions import DucoConnectionError, DucoError
+from duco.exceptions import DucoConnectionError, DucoError, DucoRateLimitError
 from duco.models import DiagStatus, NetworkType, NodeType, VentilationState
 
 # ---------------------------------------------------------------------------
@@ -491,3 +491,18 @@ async def test_http_error(client, base_url):
         m.get(f"{base_url}/api", status=500)
         with pytest.raises(DucoError):
             await client.async_get_api_info()
+
+
+async def test_rate_limit_error(client, base_url):
+    with aioresponses() as m:
+        m.post(f"{base_url}/action/nodes/1", status=429)
+        with pytest.raises(DucoRateLimitError):
+            await client.async_set_ventilation_state(1, "MAN2")
+
+
+async def test_rate_limit_error_is_duco_error(client, base_url):
+    """DucoRateLimitError must be catchable as DucoError (inheritance)."""
+    with aioresponses() as m:
+        m.post(f"{base_url}/action/nodes/1", status=429)
+        with pytest.raises(DucoError):
+            await client.async_set_ventilation_state(1, "MAN2")
