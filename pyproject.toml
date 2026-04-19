@@ -34,6 +34,8 @@ dev = [
     "aioresponses>=0.7",
     "mypy>=1.8",
     "ruff>=0.3",
+    "bandit>=1.7",
+    "pip-audit>=2.7",
 ]
 
 [project.urls]
