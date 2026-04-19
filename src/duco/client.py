@@ -10,6 +10,7 @@ from aiohttp import ClientSession
 from .exceptions import (
     DucoConnectionError,
     DucoError,
+    DucoRateLimitError,
 )
 from .models import (
     ActionInfo,
@@ -97,6 +98,9 @@ class DucoClient:
         except Exception as err:
             msg = f"Failed to connect to Duco box: {err}"
             raise DucoConnectionError(msg) from err
+
+        if response.status == 429:
+            raise DucoRateLimitError()
 
         if response.status >= 400:
             text = await response.text()
