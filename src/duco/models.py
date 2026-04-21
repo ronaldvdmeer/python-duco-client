@@ -33,7 +33,11 @@ class NodeType(StrEnum):
 
     BOX = "BOX"
     UCCO2 = "UCCO2"
+    UCRH = "UCRH"
+    UCBAT = "UCBAT"
+    UC = "UC"
     BSRH = "BSRH"
+    VLV = "VLV"
 
 
 class NetworkType(StrEnum):
