@@ -226,8 +226,13 @@ class DucoClient:
     def _parse_node(self, data: dict[str, Any]) -> Node:
         """Parse a node from the API response."""
         general_data = data["General"]
+        raw_type = self._val(general_data["Type"])
+        try:
+            node_type = NodeType(raw_type)
+        except ValueError:
+            node_type = NodeType.UNKNOWN
         general = NodeGeneralInfo(
-            node_type=NodeType(self._val(general_data["Type"])),
+            node_type=node_type,
             sub_type=self._val(general_data["SubType"]),
             network_type=NetworkType(self._val(general_data["NetworkType"])),
             parent=self._val(general_data["Parent"]),
