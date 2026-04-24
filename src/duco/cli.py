@@ -21,9 +21,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--host",
-        default=os.environ.get("DUCO_HOST", "192.168.3.94"),
+        default=os.environ.get("DUCO_HOST"),
+        required=not os.environ.get("DUCO_HOST"),
         metavar="HOST",
-        help="IP address or hostname of the Duco box (default: 192.168.3.94, or DUCO_HOST env var)",
+        help="IP address or hostname of the Duco box (or set DUCO_HOST env var)",
+    )
+    parser.add_argument(
+        "--https",
+        action="store_true",
+        default=os.environ.get("DUCO_HTTPS", "").lower() in ("1", "true", "yes"),
+        help="Use HTTPS with the bundled Duco CA certificate (or set DUCO_HTTPS=1)",
     )
 
     sub = parser.add_subparsers(dest="command", metavar="command")
@@ -51,8 +58,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 async def _run(args: argparse.Namespace) -> int:
+    scheme = "https" if args.https else "http"
     async with aiohttp.ClientSession() as session:
-        client = DucoClient(session=session, host=args.host)
+        client = DucoClient(session=session, host=args.host, scheme=scheme)
 
         if args.command == "info":
             board = await client.async_get_board_info()
@@ -74,10 +82,14 @@ async def _run(args: argparse.Namespace) -> int:
                 sensor_str = ""
                 if node.sensor:
                     parts = []
+                    if node.sensor.temp is not None:
+                        parts.append(f"temp={node.sensor.temp:.1f}°C")
                     if node.sensor.co2 is not None:
                         parts.append(f"CO2={node.sensor.co2}ppm")
                     if node.sensor.iaq_co2 is not None:
                         parts.append(f"IAQ={node.sensor.iaq_co2}")
+                    if node.sensor.rh is not None:
+                        parts.append(f"RH={node.sensor.rh}%")
                     sensor_str = f"  [{', '.join(parts)}]"
                 print(
                     f"Node {node.node_id:>3}  {g.node_type:<6}  {g.network_type:<4}"
@@ -109,3 +121,7 @@ def main() -> None:
     except DucoError as err:
         print(f"API error: {err}", file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

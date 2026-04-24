@@ -5,10 +5,23 @@ The package installs a `duco` command for quick interaction with the box from th
 ## Usage
 
 ```bash
-duco [--host HOST] <command>
+duco [--host HOST] [--https] <command>
 ```
 
-The host defaults to `192.168.3.94`. Override with `--host` or the `DUCO_HOST` environment variable.
+Use `--host` or the `DUCO_HOST` environment variable to specify the IP address or hostname of your Duco box.
+
+Use `--https` to connect over HTTPS with the bundled Duco CA certificate. This is required for newer
+Duco Connectivity Board firmware that only exposes certain data (such as node temperature) over the
+authenticated HTTPS API. The bundled CA is trusted automatically; no extra configuration is needed.
+
+## Options
+
+| Option | Default | Description |
+|---|---|---|
+| `--host HOST` | _(required)_ | IP address or hostname of the Duco box |
+| `--https` | off | Use HTTPS with the bundled Duco CA certificate |
+
+Both options can also be set via environment variables: `DUCO_HOST` and `DUCO_HTTPS=1`.
 
 ## Commands
 
@@ -22,11 +35,14 @@ The host defaults to `192.168.3.94`. Override with `--host` or the `DUCO_HOST` e
 ## Examples
 
 ```bash
-# Show box status
+# Show box status over HTTP (default)
 duco info
 
-# List all nodes
-duco nodes
+# Show box status over HTTPS (required for temperature data)
+duco --https info
+
+# List all nodes including temperature readings
+duco --https nodes
 
 # List all zones
 duco zones
@@ -40,8 +56,11 @@ duco set 1 AUTO
 # Use a different host
 duco --host 192.168.1.100 nodes
 
-# Via environment variable
-DUCO_HOST=192.168.1.100 duco nodes
+# Use a different host over HTTPS
+duco --host 192.168.1.100 --https nodes
+
+# Via environment variables
+DUCO_HOST=192.168.1.100 DUCO_HTTPS=1 duco nodes
 ```
 
 ## Ventilation states for `set`
