@@ -491,9 +491,7 @@ async def test_get_node_config(client, base_url, node_config_data):
 # ---------------------------------------------------------------------------
 
 
-async def test_connection_error(
-    unauthenticated_client, base_url, board_info_data, lan_info_data
-):
+async def test_connection_error(unauthenticated_client, base_url, board_info_data, lan_info_data):
     with aioresponses() as m:
         m.get(
             f"{base_url}/info?module=General&submodule=Board",
@@ -588,9 +586,7 @@ async def test_api_key_cached_within_same_day(
     assert unauthenticated_client._api_key == first_key
 
 
-async def test_api_key_generation_failure_raises_authentication_error(
-    unauthenticated_client, base_url
-):
+async def test_api_key_generation_failure_raises_authentication_error(unauthenticated_client, base_url):
     """DucoAuthenticationError is raised when /info is unreachable."""
     with aioresponses():
         with pytest.raises(DucoAuthenticationError):
