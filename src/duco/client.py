@@ -164,7 +164,7 @@ class DucoClient:
             response = await self._session.request(
                 method,
                 f"{self._base_url}{path}",
-                ssl=self._ssl_context,
+                ssl=self._ssl_context if self._ssl_context is not None else True,
                 **kwargs,
             )
         except Exception as err:

@@ -69,7 +69,7 @@ def test_client_default_scheme_has_no_ssl_context():
 # ---------------------------------------------------------------------------
 
 
-async def test_request_passes_ssl_none_for_http(api_info_data):
+async def test_request_passes_ssl_true_for_http(api_info_data):
     async with aiohttp.ClientSession() as session:
         client = DucoClient(session=session, host="192.168.3.94", scheme="http")
         client._api_key = _PRELOADED_API_KEY
@@ -80,7 +80,7 @@ async def test_request_passes_ssl_none_for_http(api_info_data):
             with patch.object(session, "request", wraps=session.request) as mock_req:
                 await client.async_get_api_info()
                 _, kwargs = mock_req.call_args
-                assert kwargs.get("ssl") is None
+                assert kwargs.get("ssl") is True
 
 
 async def test_request_passes_ssl_context_for_https(api_info_data):
