@@ -124,6 +124,7 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert box.sensor.rh == 35.5
     assert box.sensor.iaq_rh == 83
     assert box.sensor.co2 is None
+    assert box.sensor.temp == 27.9
 
     ucco2 = nodes[1]
     assert ucco2.node_id == 2
@@ -134,6 +135,7 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert ucco2.sensor.iaq_co2 == 100
     assert ucco2.sensor.rh is None
     assert ucco2.sensor.iaq_rh is None
+    assert ucco2.sensor.temp == 19.8
 
     bsrh = nodes[2]
     assert bsrh.node_id == 113
@@ -142,6 +144,7 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert bsrh.sensor.rh == 36.0
     assert bsrh.sensor.iaq_rh == 81
     assert bsrh.sensor.co2 is None
+    assert bsrh.sensor.temp == 27.9
 
 
 # ---------------------------------------------------------------------------
