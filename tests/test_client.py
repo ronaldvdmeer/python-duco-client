@@ -2,22 +2,36 @@
 
 from __future__ import annotations
 
+import time
+
 import aiohttp
 import pytest
 from aioresponses import aioresponses
 
 from duco.client import DucoClient
-from duco.exceptions import DucoConnectionError, DucoError, DucoRateLimitError
+from duco.exceptions import DucoAuthenticationError, DucoConnectionError, DucoError, DucoRateLimitError
 from duco.models import DiagStatus, NetworkType, NodeType, VentilationState
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+_PRELOADED_API_KEY = "test-api-key-preloaded-for-unit-tests"
+
 
 @pytest.fixture
 async def client(mock_host):
-    """DucoClient with a real aiohttp session."""
+    """DucoClient with a pre-loaded API key so tests don't trigger auth."""
+    async with aiohttp.ClientSession() as session:
+        c = DucoClient(session=session, host=mock_host)
+        c._api_key = _PRELOADED_API_KEY
+        c._api_key_day = int(time.time()) // 86400
+        yield c
+
+
+@pytest.fixture
+async def unauthenticated_client(mock_host):
+    """DucoClient without a pre-loaded API key for testing auth logic."""
     async with aiohttp.ClientSession() as session:
         yield DucoClient(session=session, host=mock_host)
 
@@ -477,16 +491,22 @@ async def test_get_node_config(client, base_url, node_config_data):
 # ---------------------------------------------------------------------------
 
 
-async def test_connection_error(mock_host):
-    async with aiohttp.ClientSession() as session:
-        client = DucoClient(session=session, host=mock_host)
-        with aioresponses() as m:
-            m.get(
-                f"http://{mock_host}/api",
-                exception=aiohttp.ClientConnectionError("unreachable"),
-            )
-            with pytest.raises(DucoConnectionError):
-                await client.async_get_api_info()
+async def test_connection_error(unauthenticated_client, base_url, board_info_data, lan_info_data):
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            payload=board_info_data,
+        )
+        m.get(
+            f"{base_url}/info?module=General&submodule=Lan",
+            payload=lan_info_data,
+        )
+        m.get(
+            f"{base_url}/api",
+            exception=aiohttp.ClientConnectionError("unreachable"),
+        )
+        with pytest.raises(DucoConnectionError):
+            await unauthenticated_client.async_get_api_info()
 
 
 async def test_http_error(client, base_url):
@@ -509,3 +529,72 @@ async def test_rate_limit_error_is_duco_error(client, base_url):
         m.post(f"{base_url}/action/nodes/1", status=429)
         with pytest.raises(DucoError):
             await client.async_set_ventilation_state(1, "MAN2")
+
+
+# ---------------------------------------------------------------------------
+# API key authentication
+# ---------------------------------------------------------------------------
+
+
+async def test_api_key_sent_in_request_header(client, base_url, api_info_data):
+    """The Api-Key header is included in every authenticated request."""
+    with aioresponses() as m:
+        m.get(f"{base_url}/api", payload=api_info_data)
+        await client.async_get_api_info()
+        request = list(m.requests.values())[0][0]
+    assert request.kwargs["headers"]["Api-Key"] == _PRELOADED_API_KEY
+
+
+async def test_api_key_fetched_on_first_request(
+    unauthenticated_client, base_url, board_info_data, lan_info_data, api_info_data
+):
+    """API key is generated from /info on the first authenticated request."""
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            payload=board_info_data,
+        )
+        m.get(
+            f"{base_url}/info?module=General&submodule=Lan",
+            payload=lan_info_data,
+        )
+        m.get(f"{base_url}/api", payload=api_info_data)
+        await unauthenticated_client.async_get_api_info()
+    assert unauthenticated_client._api_key is not None
+    assert len(unauthenticated_client._api_key) == 64
+
+
+async def test_api_key_cached_within_same_day(
+    unauthenticated_client, base_url, board_info_data, lan_info_data, api_info_data
+):
+    """API key is not re-fetched when it is still valid for today."""
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            payload=board_info_data,
+        )
+        m.get(
+            f"{base_url}/info?module=General&submodule=Lan",
+            payload=lan_info_data,
+        )
+        m.get(f"{base_url}/api", payload=api_info_data)
+        m.get(f"{base_url}/api", payload=api_info_data)
+        await unauthenticated_client.async_get_api_info()
+        first_key = unauthenticated_client._api_key
+        await unauthenticated_client.async_get_api_info()
+    # Key should be identical – no new /info fetch happened
+    assert unauthenticated_client._api_key == first_key
+
+
+async def test_api_key_generation_failure_raises_authentication_error(unauthenticated_client, base_url):
+    """DucoAuthenticationError is raised when /info is unreachable."""
+    with aioresponses():
+        with pytest.raises(DucoAuthenticationError):
+            await unauthenticated_client.async_get_api_info()
+
+
+async def test_authentication_error_is_duco_error(unauthenticated_client, base_url):
+    """DucoAuthenticationError must be catchable as DucoError (inheritance)."""
+    with aioresponses():
+        with pytest.raises(DucoError):
+            await unauthenticated_client.async_get_api_info()

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json as _json
+import time as _time
 from typing import Any
 
 from aiohttp import ClientSession
 
 from .exceptions import (
+    DucoAuthenticationError,
     DucoConnectionError,
     DucoError,
     DucoRateLimitError,
@@ -32,6 +34,39 @@ from .models import (
     Zone,
     ZoneGroup,
 )
+
+
+class _ApiKeyGenerator:
+    """Generates the daily API key from board serial, MAC address, and device time."""
+
+    def _transform_char(self, c1: str, c2: str) -> str:
+        result = (ord(c1) ^ ord(c2)) & 127
+        if result < 48:
+            result = (result % 26) + 97
+        elif 57 < result < 65:
+            result = (result % 26) + 65
+        elif 90 < result < 97:
+            result = (result % 10) + 48
+        elif result > 122:
+            result = (result % 10) + 48
+        return chr(result)
+
+    def generate(self, board_serial: str, mac_address: str, device_time: int) -> str:
+        """Generate a 64-character API key."""
+        key = list("n4W2lNnb2IPnfBrXwSTzTlvmDvsbemYRvXBRWrfNtQJlMiQ8yPVRmGcoPd7szSu2")
+        for i in range(min(len(mac_address), 32)):
+            key[i] = self._transform_char(key[i], mac_address[i])
+        for i in range(min(len(board_serial), 32)):
+            key[i + 32] = self._transform_char(key[i + 32], board_serial[i])
+        adjusted_time = device_time // 86400
+        for i in range(16):
+            if (adjusted_time & (1 << i)) != 0:
+                idx = i * 4
+                key[idx] = self._transform_char(key[idx], key[i * 2 + 32])
+                key[idx + 1] = self._transform_char(key[idx + 1], key[63 - (i * 2)])
+                key[idx + 2] = self._transform_char(key[idx], key[idx + 1])
+                key[idx + 3] = self._transform_char(key[idx + 1], key[idx + 2])
+        return "".join(key)
 
 
 class DucoClient:
@@ -64,12 +99,41 @@ class DucoClient:
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
+        self._api_key: str | None = None
+        self._api_key_day: int = -1
 
     # -------------------------------------------------------------------------
     # Internal helpers
     # -------------------------------------------------------------------------
 
-    async def _request(self, method: str, path: str, **kwargs: Any) -> Any:
+    async def _ensure_api_key(self) -> None:
+        """Fetch and cache the daily API key from the Duco box."""
+        today = int(_time.time()) // 86400
+        if self._api_key is not None and self._api_key_day == today:
+            return
+        try:
+            board_data = await self._request(
+                "GET",
+                "/info",
+                params={"module": "General", "submodule": "Board"},
+                _skip_auth=True,
+            )
+            lan_data = await self._request(
+                "GET",
+                "/info",
+                params={"module": "General", "submodule": "Lan"},
+                _skip_auth=True,
+            )
+        except DucoError as err:
+            msg = f"Failed to fetch device info for API key generation: {err}"
+            raise DucoAuthenticationError(msg) from err
+        serial = board_data["General"]["Board"]["SerialBoardBox"]["Val"]
+        device_time = board_data["General"]["Board"]["Time"]["Val"]
+        mac = lan_data["General"]["Lan"]["Mac"]["Val"]
+        self._api_key = _ApiKeyGenerator().generate(serial, mac, device_time)
+        self._api_key_day = today
+
+    async def _request(self, method: str, path: str, *, _skip_auth: bool = False, **kwargs: Any) -> Any:
         """Make a request to the Duco API.
 
         Args:
@@ -84,12 +148,16 @@ class DucoClient:
             DucoConnectionError: If the box is unreachable.
             DucoError: For API errors.
         """
+        if not _skip_auth:
+            await self._ensure_api_key()
         try:
             # The Duco box rejects JSON with spaces between tokens.
             # Serialize manually with compact separators when a json body is given.
             if "json" in kwargs:
                 kwargs["data"] = _json.dumps(kwargs.pop("json"), separators=(",", ":")).encode()
                 kwargs.setdefault("headers", {})["Content-Type"] = "application/json"
+            if self._api_key is not None:
+                kwargs.setdefault("headers", {})["Api-Key"] = self._api_key
             response = await self._session.request(
                 method,
                 f"{self._base_url}{path}",

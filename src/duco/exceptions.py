@@ -11,6 +11,10 @@ class DucoConnectionError(DucoError):
     """Exception raised when the Duco box is unreachable."""
 
 
+class DucoAuthenticationError(DucoError):
+    """Exception raised when the API key cannot be generated or is rejected."""
+
+
 class DucoRateLimitError(DucoError):
     """Exception raised when the API write rate limit is exceeded.
 
