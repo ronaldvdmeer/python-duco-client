@@ -131,6 +131,7 @@ def nodes_data():
                     "FlowLvlTgt": {"Val": 15},
                 },
                 "Sensor": {
+                    "Temp": {"Val": 27.9},
                     "Rh": {"Val": 35.5},
                     "IaqRh": {"Val": 83},
                 },
@@ -153,6 +154,7 @@ def nodes_data():
                     "Mode": {"Val": "-"},
                 },
                 "Sensor": {
+                    "Temp": {"Val": 19.8},
                     "Co2": {"Val": 536},
                     "IaqCo2": {"Val": 100},
                 },
@@ -175,6 +177,7 @@ def nodes_data():
                     "Mode": {"Val": "-"},
                 },
                 "Sensor": {
+                    "Temp": {"Val": 27.9},
                     "Rh": {"Val": 36.0},
                     "IaqRh": {"Val": 81},
                 },
