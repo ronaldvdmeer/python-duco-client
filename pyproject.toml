@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-duco-client"
-version = "0.3.6"
+version = "0.3.7"
 description = "Async Python client for the Duco ventilation API"
 readme = "README.md"
 license = "MIT"
@@ -50,7 +50,7 @@ duco = "duco.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-duco = ["py.typed"]
+duco = ["py.typed", "certs/*.pem"]
 
 # -- pytest ------------------------------------------------------------------
 [tool.pytest.ini_options]

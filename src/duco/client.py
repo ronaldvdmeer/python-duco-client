@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json as _json
+import ssl
 import time as _time
 from typing import Any
 
 from aiohttp import ClientSession
 
+from ._ssl import build_ssl_context
 from .exceptions import (
     DucoAuthenticationError,
     DucoConnectionError,
@@ -99,6 +101,7 @@ class DucoClient:
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
+        self._ssl_context: ssl.SSLContext | None = build_ssl_context() if scheme == "https" else None
         self._api_key: str | None = None
         self._api_key_day: int = -1
 
@@ -161,6 +164,7 @@ class DucoClient:
             response = await self._session.request(
                 method,
                 f"{self._base_url}{path}",
+                ssl=self._ssl_context,
                 **kwargs,
             )
         except Exception as err:
