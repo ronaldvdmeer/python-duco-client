@@ -23,7 +23,7 @@ _PRELOADED_API_KEY = "test-api-key-preloaded-for-unit-tests"
 async def client(mock_host):
     """DucoClient with a pre-loaded API key so tests don't trigger auth."""
     async with aiohttp.ClientSession() as session:
-        c = DucoClient(session=session, host=mock_host)
+        c = DucoClient(session=session, host=mock_host, scheme="http")
         c._api_key = _PRELOADED_API_KEY
         c._api_key_day = int(time.time()) // 86400
         yield c
@@ -33,7 +33,7 @@ async def client(mock_host):
 async def unauthenticated_client(mock_host):
     """DucoClient without a pre-loaded API key for testing auth logic."""
     async with aiohttp.ClientSession() as session:
-        yield DucoClient(session=session, host=mock_host)
+        yield DucoClient(session=session, host=mock_host, scheme="http")
 
 
 # ---------------------------------------------------------------------------

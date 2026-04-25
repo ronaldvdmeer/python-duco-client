@@ -58,10 +58,10 @@ def test_client_https_has_ssl_context():
     assert isinstance(client._ssl_context, ssl.SSLContext)
 
 
-def test_client_default_scheme_has_no_ssl_context():
+def test_client_default_scheme_has_ssl_context():
     session = MagicMock(spec=aiohttp.ClientSession)
     client = DucoClient(session=session, host="192.168.3.94")
-    assert client._ssl_context is None
+    assert isinstance(client._ssl_context, ssl.SSLContext)
 
 
 # ---------------------------------------------------------------------------
