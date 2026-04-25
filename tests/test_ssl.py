@@ -41,6 +41,13 @@ def test_build_ssl_context_loads_duco_ca():
     assert ctx is not None
 
 
+def test_build_ssl_context_is_cached():
+    """Same object must be returned on repeated calls (no repeated blocking I/O)."""
+    ctx1 = build_ssl_context()
+    ctx2 = build_ssl_context()
+    assert ctx1 is ctx2
+
+
 # ---------------------------------------------------------------------------
 # DucoClient SSL wiring
 # ---------------------------------------------------------------------------
@@ -62,6 +69,24 @@ def test_client_default_scheme_has_ssl_context():
     session = MagicMock(spec=aiohttp.ClientSession)
     client = DucoClient(session=session, host="192.168.3.94")
     assert isinstance(client._ssl_context, ssl.SSLContext)
+
+
+def test_client_explicit_ssl_context_is_used_directly():
+    """When ssl_context is provided, build_ssl_context must NOT be called.
+
+    This is the pattern callers should use inside an asyncio event loop:
+    build the context in an executor first, then pass it in.  If
+    build_ssl_context() were called here it would perform blocking I/O on
+    the event loop (file reads, load_default_certs, set_default_verify_paths).
+    """
+    session = MagicMock(spec=aiohttp.ClientSession)
+    prebuilt = MagicMock(spec=ssl.SSLContext)
+
+    with patch("duco.client.build_ssl_context") as mock_build:
+        client = DucoClient(session=session, host="192.168.3.94", ssl_context=prebuilt)
+        mock_build.assert_not_called()
+
+    assert client._ssl_context is prebuilt
 
 
 # ---------------------------------------------------------------------------
