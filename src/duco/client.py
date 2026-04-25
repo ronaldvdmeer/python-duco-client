@@ -90,14 +90,14 @@ class DucoClient:
         self,
         session: ClientSession,
         host: str,
-        scheme: str = "http",
+        scheme: str = "https",
     ) -> None:
         """Initialize the client.
 
         Args:
             session: aiohttp session for HTTP requests.
             host: IP address or hostname of the Duco box.
-            scheme: URL scheme (default ``"http"``).
+            scheme: URL scheme (default ``"https"``).
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
