@@ -59,7 +59,8 @@ jobs:
         run: bandit -r src/ -ll
 
       - name: Dependency audit
-        run: pip-audit --desc on
+        # CVE-2026-3219: affects pip itself; no fix released yet — re-evaluate when pip > 26.0.1 is available
+        run: pip-audit --desc on --ignore-vuln CVE-2026-3219
 
   lint:
     name: Lint & Type Check
