@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib.resources
 import ssl
 
+_cache: ssl.SSLContext | None = None
+
 
 def build_ssl_context() -> ssl.SSLContext:
     """Return an SSL context that trusts the Duco CA bundle.
@@ -17,10 +19,18 @@ def build_ssl_context() -> ssl.SSLContext:
     Hostname verification is disabled because device certificates have the
     factory-default IP (192.168.4.1) in their SAN, which does not match
     the actual IP address assigned by the user's router.
+
+    The result is cached after the first call so subsequent calls are free
+    of blocking I/O.  Callers that need to avoid blocking I/O on the first
+    call (e.g. inside an asyncio event loop) should invoke this function
+    in an executor and pass the returned context to :class:`DucoClient`.
     """
-    ctx = ssl.create_default_context()
-    cert_path = importlib.resources.files("duco.certs").joinpath("duco_ca.pem")
-    with importlib.resources.as_file(cert_path) as path:
-        ctx.load_verify_locations(cafile=path)
-    ctx.check_hostname = False
-    return ctx
+    global _cache  # noqa: PLW0603
+    if _cache is None:
+        ctx = ssl.create_default_context()
+        cert_path = importlib.resources.files("duco.certs").joinpath("duco_ca.pem")
+        with importlib.resources.as_file(cert_path) as path:
+            ctx.load_verify_locations(cafile=path)
+        ctx.check_hostname = False
+        _cache = ctx
+    return _cache

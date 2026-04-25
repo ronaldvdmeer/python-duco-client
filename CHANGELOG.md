@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9] - 2026-04-26
+
+### Added
+
+- `build_ssl_context()` is now part of the public API (exported from `duco`).
+- `DucoClient.__init__` accepts an optional `ssl_context` parameter.  When
+  provided the caller controls when the context is built (e.g. in an executor
+  so blocking I/O stays off the asyncio event loop).  When omitted the
+  behaviour is identical to previous releases.
+- `build_ssl_context()` now caches its result so repeated calls are free of
+  blocking I/O.
+
 ## [0.3.8] - 2026-04-26
 
 ### Changed

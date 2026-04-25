@@ -91,6 +91,7 @@ class DucoClient:
         session: ClientSession,
         host: str,
         scheme: str = "https",
+        ssl_context: ssl.SSLContext | None = None,
     ) -> None:
         """Initialize the client.
 
@@ -98,10 +99,21 @@ class DucoClient:
             session: aiohttp session for HTTP requests.
             host: IP address or hostname of the Duco box.
             scheme: URL scheme (default ``"https"``).
+            ssl_context: Optional pre-built SSL context.  When provided the
+                caller is responsible for constructing it (e.g. via
+                :func:`duco.build_ssl_context` in an executor).  When omitted
+                and *scheme* is ``"https"``, :func:`build_ssl_context` is
+                called implicitly — which performs blocking I/O and should not
+                be used inside an asyncio event loop.
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
-        self._ssl_context: ssl.SSLContext | None = build_ssl_context() if scheme == "https" else None
+        if ssl_context is not None:
+            self._ssl_context: ssl.SSLContext | None = ssl_context
+        elif scheme == "https":
+            self._ssl_context = build_ssl_context()
+        else:
+            self._ssl_context = None
         self._api_key: str | None = None
         self._api_key_day: int = -1
 

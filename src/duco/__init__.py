@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
+from ._ssl import build_ssl_context
 from .client import DucoClient
 from .exceptions import (
     DucoAuthenticationError,
@@ -46,6 +47,7 @@ __all__ = [
     "DiagStatus",
     "DucoAuthenticationError",
     "DucoClient",
+    "build_ssl_context",
     "DucoConnectionError",
     "DucoError",
     "DucoRateLimitError",
