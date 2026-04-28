@@ -260,7 +260,7 @@ class SystemConfig:
         lan_wifi_client_ssid: WiFi SSID to connect to.
         lan_wifi_client_key: WiFi password.
         auto_reboot_comm_period: Auto-reboot period in days (``0`` = disabled, max ``365``).
-        auto_reboot_comm_time: Auto-reboot time of day in minutes since midnight (``0``–``1439``).
+        auto_reboot_comm_time: Auto-reboot time of day in minutes since midnight (``0``-``1439``).
     """
 
     time_zone: int

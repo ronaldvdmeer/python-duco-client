@@ -541,7 +541,7 @@ async def test_api_key_sent_in_request_header(client, base_url, api_info_data):
     with aioresponses() as m:
         m.get(f"{base_url}/api", payload=api_info_data)
         await client.async_get_api_info()
-        request = list(m.requests.values())[0][0]
+        request = next(iter(m.requests.values()))[0]
     assert request.kwargs["headers"]["Api-Key"] == _PRELOADED_API_KEY
 
 
@@ -582,19 +582,17 @@ async def test_api_key_cached_within_same_day(
         await unauthenticated_client.async_get_api_info()
         first_key = unauthenticated_client._api_key
         await unauthenticated_client.async_get_api_info()
-    # Key should be identical – no new /info fetch happened
+    # Key should be identical - no new /info fetch happened
     assert unauthenticated_client._api_key == first_key
 
 
 async def test_api_key_generation_failure_raises_authentication_error(unauthenticated_client, base_url):
     """DucoAuthenticationError is raised when /info is unreachable."""
-    with aioresponses():
-        with pytest.raises(DucoAuthenticationError):
-            await unauthenticated_client.async_get_api_info()
+    with aioresponses(), pytest.raises(DucoAuthenticationError):
+        await unauthenticated_client.async_get_api_info()
 
 
 async def test_authentication_error_is_duco_error(unauthenticated_client, base_url):
     """DucoAuthenticationError must be catchable as DucoError (inheritance)."""
-    with aioresponses():
-        with pytest.raises(DucoError):
-            await unauthenticated_client.async_get_api_info()
+    with aioresponses(), pytest.raises(DucoError):
+        await unauthenticated_client.async_get_api_info()
