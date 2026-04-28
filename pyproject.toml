@@ -88,6 +88,9 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/duco/cli.py" = ["T201"]
+
 # -- mypy -------------------------------------------------------------------
 [tool.mypy]
 python_version = "3.12"

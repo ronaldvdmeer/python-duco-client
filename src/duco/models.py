@@ -70,6 +70,7 @@ class ApiInfo:
 
     Attributes:
         api_version: Public API version string (e.g. ``"2.5"``).
+
     """
 
     api_version: str
@@ -87,6 +88,7 @@ class BoardInfo:
         serial_duco_box: Duco serial number for the box.
         serial_duco_comm: Duco serial number for the communication module.
         time: Current Unix timestamp on the box.
+
     """
 
     box_name: str
@@ -111,6 +113,7 @@ class LanInfo:
         mac: MAC address.
         host_name: Hostname on the network.
         rssi_wifi: WiFi signal strength in dBm, or None if the box is connected via ethernet.
+
     """
 
     mode: str
@@ -130,6 +133,7 @@ class DiagComponent:
     Attributes:
         component: Component name (e.g. ``"Ventilation"``).
         status: Component status.
+
     """
 
     component: str
@@ -146,6 +150,7 @@ class NodeSensorInfo:
         rh: Relative humidity in percent, or ``None`` if not available.
         iaq_rh: Indoor Air Quality index based on humidity (0-100), or ``None``.
         temp: Temperature in degrees Celsius, or ``None`` if not available.
+
     """
 
     co2: int | None = None
@@ -165,6 +170,7 @@ class NodeVentilationInfo:
         time_state_end: End time of current state (Unix timestamp, 0 = permanent).
         mode: Ventilation mode.
         flow_lvl_tgt: Target flow level (only on BOX nodes), or ``None``.
+
     """
 
     state: VentilationState
@@ -186,6 +192,7 @@ class NodeGeneralInfo:
         asso: Associated node ID (0 = no association).
         name: User-assigned name.
         identify: Identification mode (0 = off, 1 = on).
+
     """
 
     node_type: NodeType
@@ -206,6 +213,7 @@ class Node:
         general: General node information.
         ventilation: Ventilation state, or ``None``.
         sensor: Sensor data, or ``None``.
+
     """
 
     node_id: int
@@ -221,6 +229,7 @@ class ZoneGroup:
     Attributes:
         group_id: Group identifier.
         nodes: List of node IDs in this group.
+
     """
 
     group_id: int
@@ -235,6 +244,7 @@ class Zone:
         zone_id: Zone identifier.
         name: Zone name.
         groups: Groups within this zone.
+
     """
 
     zone_id: int
@@ -261,6 +271,7 @@ class SystemConfig:
         lan_wifi_client_key: WiFi password.
         auto_reboot_comm_period: Auto-reboot period in days (``0`` = disabled, max ``365``).
         auto_reboot_comm_time: Auto-reboot time of day in minutes since midnight (``0``-``1439``).
+
     """
 
     time_zone: int
@@ -286,6 +297,7 @@ class NodeConfig:
     Attributes:
         node_id: The node identifier.
         name: User-assigned name for the node (empty string if not set).
+
     """
 
     node_id: int
@@ -302,6 +314,7 @@ class ActionInfo:
             ``Enum``, ``None``).
         enum_values: Allowed values when ``val_type`` is ``Enum``; empty list
             otherwise.
+
     """
 
     action: str
@@ -316,6 +329,7 @@ class NodeActions:
     Attributes:
         node_id: The node identifier.
         actions: List of actions supported by this node.
+
     """
 
     node_id: int

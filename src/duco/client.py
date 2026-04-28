@@ -103,6 +103,7 @@ class DucoClient:
                 and *scheme* is ``"https"``, :func:`build_ssl_context` is
                 called implicitly — which performs blocking I/O and should not
                 be used inside an asyncio event loop.
+
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
@@ -160,6 +161,7 @@ class DucoClient:
         Raises:
             DucoConnectionError: If the box is unreachable.
             DucoError: For API errors.
+
         """
         if not _skip_auth:
             await self._ensure_api_key()
@@ -205,6 +207,7 @@ class DucoClient:
 
         Returns:
             API version info.
+
         """
         data = await self._request("GET", "/api")
         return ApiInfo(
@@ -220,6 +223,7 @@ class DucoClient:
 
         Returns:
             Board info with serial numbers and box identification.
+
         """
         data = await self._request("GET", "/info", params={"module": "General", "submodule": "Board"})
         board = data["General"]["Board"]
@@ -238,6 +242,7 @@ class DucoClient:
 
         Returns:
             Network info with IP, MAC, WiFi signal, etc.
+
         """
         data = await self._request("GET", "/info", params={"module": "General", "submodule": "Lan"})
         lan = data["General"]["Lan"]
@@ -257,6 +262,7 @@ class DucoClient:
 
         Returns:
             List of diagnostic component statuses.
+
         """
         data = await self._request("GET", "/info", params={"module": "Diag"})
         return [
@@ -272,6 +278,7 @@ class DucoClient:
 
         Returns:
             Number of remaining write requests.
+
         """
         data = await self._request(
             "GET",
@@ -289,6 +296,7 @@ class DucoClient:
 
         Returns:
             List of nodes with general info, ventilation state, and sensor data.
+
         """
         data = await self._request("GET", "/info/nodes")
         return [self._parse_node(node_data) for node_data in data["Nodes"]]
@@ -301,6 +309,7 @@ class DucoClient:
 
         Returns:
             Node with general info, ventilation state, and sensor data.
+
         """
         data = await self._request("GET", f"/info/nodes/{node_id}")
         return self._parse_node(data)
@@ -357,6 +366,7 @@ class DucoClient:
 
         Returns:
             List of node IDs.
+
         """
         data = await self._request("GET", "/nodes")
         return [item["Node"] for item in data]
@@ -370,6 +380,7 @@ class DucoClient:
 
         Returns:
             List of zones.
+
         """
         data = await self._request("GET", "/info/zones")
         return [self._parse_zone(zone_data) for zone_data in data["Zones"]]
@@ -382,6 +393,7 @@ class DucoClient:
 
         Returns:
             Zone with groups.
+
         """
         data = await self._request("GET", f"/info/zones/{zone_id}")
         return self._parse_zone(data)
@@ -395,7 +407,7 @@ class DucoClient:
                 ZoneGroup(
                     group_id=group_data["Group"],
                     nodes=list(nodes),
-                )
+                ),
             )
 
         name = self._val(data.get("DeviceGroupConfig", {}).get("General", {}).get("Name", {"Val": ""}))
@@ -415,6 +427,7 @@ class DucoClient:
 
         Returns:
             List of :class:`ActionInfo` objects.
+
         """
         data = await self._request("GET", "/action")
         return [self._parse_action(item) for item in data]
@@ -424,6 +437,7 @@ class DucoClient:
 
         Returns:
             List of :class:`NodeActions`, one per node.
+
         """
         data = await self._request("GET", "/action/nodes")
         return [
@@ -442,6 +456,7 @@ class DucoClient:
 
         Returns:
             :class:`NodeActions` for the requested node.
+
         """
         data = await self._request("GET", f"/action/nodes/{node_id}")
         return NodeActions(
@@ -468,6 +483,7 @@ class DucoClient:
 
         Raises:
             DucoRateLimitError: If the write rate limit is exceeded.
+
         """
         await self._request(
             "POST",
@@ -481,6 +497,7 @@ class DucoClient:
         Args:
             node_id: The node ID.
             enabled: Whether to enable identification.
+
         """
         await self._request(
             "POST",
@@ -493,6 +510,7 @@ class DucoClient:
 
         Args:
             enabled: Whether to enable identification.
+
         """
         await self._request(
             "POST",
@@ -524,6 +542,7 @@ class DucoClient:
 
         Raises:
             DucoRateLimitError: If the write rate limit is exceeded.
+
         """
         await self._request(
             "POST",
@@ -539,6 +558,7 @@ class DucoClient:
 
         Raises:
             DucoRateLimitError: If the write rate limit is exceeded.
+
         """
         await self._request(
             "POST",
@@ -555,6 +575,7 @@ class DucoClient:
 
         Returns:
             System configuration including time, network, and reboot settings.
+
         """
         data = await self._request("GET", "/config", params={"module": "General"})
         general = data["General"]
@@ -611,6 +632,7 @@ class DucoClient:
             lan_wifi_client_key: WiFi password.
             auto_reboot_comm_period: Auto-reboot period in days (``0`` = disabled).
             auto_reboot_comm_time: Auto-reboot time in minutes since midnight.
+
         """
         body: dict[str, Any] = {"General": {}}
         if time_zone is not None:
@@ -646,6 +668,7 @@ class DucoClient:
 
         Returns:
             List of :class:`Zone` objects, one per zone.
+
         """
         data = await self._request("GET", "/config/zones")
         return [self._parse_zone(zone_data) for zone_data in data["Zones"]]
@@ -658,6 +681,7 @@ class DucoClient:
 
         Returns:
             :class:`Zone` for the requested zone.
+
         """
         data = await self._request("GET", f"/config/zones/{zone_id}")
         return self._parse_zone(data)
@@ -668,6 +692,7 @@ class DucoClient:
         Args:
             zone_id: The zone ID.
             name: The new zone name.
+
         """
         await self._request(
             "PATCH",
@@ -684,6 +709,7 @@ class DucoClient:
 
         Returns:
             :class:`ZoneGroup` for the requested group.
+
         """
         data = await self._request("GET", f"/config/zones/{zone_id}/groups/{group_id}")
         nodes = data.get("DeviceGroupConfig", {}).get("General", {}).get("Nodes", [])
@@ -696,6 +722,7 @@ class DucoClient:
             zone_id: The zone ID.
             group_id: The group ID.
             node_ids: List of node IDs to assign to the group.
+
         """
         await self._request(
             "PATCH",
@@ -708,6 +735,7 @@ class DucoClient:
 
         Returns:
             List of :class:`NodeConfig` objects, one per node.
+
         """
         data = await self._request("GET", "/config/nodes")
         return [NodeConfig(node_id=item["Node"], name=self._val(item["Name"])) for item in data["Nodes"]]
@@ -720,6 +748,7 @@ class DucoClient:
 
         Returns:
             :class:`NodeConfig` for the requested node.
+
         """
         data = await self._request("GET", f"/config/nodes/{node_id}")
         return NodeConfig(node_id=data["Node"], name=self._val(data["Name"]))
@@ -730,6 +759,7 @@ class DucoClient:
         Args:
             node_id: The node ID.
             name: The new node name.
+
         """
         await self._request(
             "PATCH",

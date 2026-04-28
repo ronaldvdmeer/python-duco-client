@@ -93,7 +93,7 @@ async def _run(args: argparse.Namespace) -> int:
                     sensor_str = f"  [{', '.join(parts)}]"
                 print(
                     f"Node {node.node_id:>3}  {g.node_type:<6}  {g.network_type:<4}"
-                    f"  state={state:<8}  mode={mode:<4}{sensor_str}"
+                    f"  state={state:<8}  mode={mode:<4}{sensor_str}",
                 )
 
         elif args.command == "zones":
