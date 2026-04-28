@@ -47,9 +47,7 @@ class _ApiKeyGenerator:
             result = (result % 26) + 97
         elif 57 < result < 65:
             result = (result % 26) + 65
-        elif 90 < result < 97:
-            result = (result % 10) + 48
-        elif result > 122:
+        elif 90 < result < 97 or result > 122:
             result = (result % 10) + 48
         return chr(result)
 

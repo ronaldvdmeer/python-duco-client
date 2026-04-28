@@ -25,7 +25,7 @@ def build_ssl_context() -> ssl.SSLContext:
     call (e.g. inside an asyncio event loop) should invoke this function
     in an executor and pass the returned context to :class:`DucoClient`.
     """
-    global _cache  # noqa: PLW0603
+    global _cache
     if _cache is None:
         ctx = ssl.create_default_context()
         cert_path = importlib.resources.files("duco.certs").joinpath("duco_ca.pem")

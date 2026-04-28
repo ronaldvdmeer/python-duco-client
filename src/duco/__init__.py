@@ -47,7 +47,6 @@ __all__ = [
     "DiagStatus",
     "DucoAuthenticationError",
     "DucoClient",
-    "build_ssl_context",
     "DucoConnectionError",
     "DucoError",
     "DucoRateLimitError",
@@ -66,4 +65,5 @@ __all__ = [
     "Zone",
     "ZoneGroup",
     "__version__",
+    "build_ssl_context",
 ]
