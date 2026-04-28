@@ -20,6 +20,7 @@ class DucoRateLimitError(DucoError):
 
     Attributes:
         remaining: Number of write requests remaining, or ``None`` if unknown.
+
     """
 
     def __init__(self, remaining: int | None = None) -> None:
