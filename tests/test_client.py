@@ -586,13 +586,31 @@ async def test_api_key_cached_within_same_day(
     assert unauthenticated_client._api_key == first_key
 
 
-async def test_api_key_generation_failure_raises_authentication_error(unauthenticated_client, base_url):
-    """DucoAuthenticationError is raised when /info is unreachable."""
-    with aioresponses(), pytest.raises(DucoAuthenticationError):
+async def test_api_key_generation_connection_failure_raises_connection_error(unauthenticated_client, base_url):
+    """DucoConnectionError propagates directly when the device is unreachable."""
+    with aioresponses(), pytest.raises(DucoConnectionError):
         await unauthenticated_client.async_get_api_info()
+
+
+async def test_api_key_generation_api_failure_raises_authentication_error(unauthenticated_client, base_url):
+    """DucoAuthenticationError is raised when /info returns an API error."""
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            status=500,
+            body="Internal Server Error",
+        )
+        with pytest.raises(DucoAuthenticationError):
+            await unauthenticated_client.async_get_api_info()
 
 
 async def test_authentication_error_is_duco_error(unauthenticated_client, base_url):
     """DucoAuthenticationError must be catchable as DucoError (inheritance)."""
-    with aioresponses(), pytest.raises(DucoError):
-        await unauthenticated_client.async_get_api_info()
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            status=500,
+            body="Internal Server Error",
+        )
+        with pytest.raises(DucoError):
+            await unauthenticated_client.async_get_api_info()

@@ -138,6 +138,8 @@ class DucoClient:
                 params={"module": "General", "submodule": "Lan"},
                 _skip_auth=True,
             )
+        except DucoConnectionError:
+            raise
         except DucoError as err:
             msg = f"Failed to fetch device info for API key generation: {err}"
             raise DucoAuthenticationError(msg) from err
