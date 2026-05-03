@@ -586,17 +586,13 @@ async def test_api_key_cached_within_same_day(
     assert unauthenticated_client._api_key == first_key
 
 
-async def test_api_key_generation_connection_failure_raises_connection_error(
-    unauthenticated_client, base_url
-):
+async def test_api_key_generation_connection_failure_raises_connection_error(unauthenticated_client, base_url):
     """DucoConnectionError propagates directly when the device is unreachable."""
     with aioresponses(), pytest.raises(DucoConnectionError):
         await unauthenticated_client.async_get_api_info()
 
 
-async def test_api_key_generation_api_failure_raises_authentication_error(
-    unauthenticated_client, base_url
-):
+async def test_api_key_generation_api_failure_raises_authentication_error(unauthenticated_client, base_url):
     """DucoAuthenticationError is raised when /info returns an API error."""
     with aioresponses() as m:
         m.get(
