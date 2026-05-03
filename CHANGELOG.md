@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2026-05-03
+
+### Fixed
+
+- `_ensure_api_key`: `DucoConnectionError` is no longer wrapped as
+  `DucoAuthenticationError`. Previously, a connection failure during API key
+  generation was caught by the generic `except DucoError` handler and re-raised
+  as `DucoAuthenticationError`, bypassing callers that correctly handle
+  `DucoConnectionError`. The exception is now re-raised unchanged; only genuine
+  API failures are wrapped as `DucoAuthenticationError`.
+
+### Enhanced
+
+- Fixed ruff code quality warnings across `src/` and `tests/`: sorted `__all__`
+  (RUF022), removed unused `noqa` directive (RUF100), combined `elif` branches
+  (SIM114), replaced EN dashes with hyphens in docstrings/comments (RUF002,
+  RUF003), used `next(iter(...))` instead of list slice (RUF015), combined
+  nested `with` statements (SIM117).
+- Fixed ruff docstring style (D413, COM812) across `src/duco/`. Added
+  per-file-ignore for T201 in `cli.py` — `print()` is intentional CLI output.
+
 ## [0.3.9] - 2026-04-26
 
 ### Added
