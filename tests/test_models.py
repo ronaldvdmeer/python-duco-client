@@ -31,11 +31,16 @@ class TestApiInfo:
     """Test ApiInfo dataclass."""
 
     def test_create(self):
-        info = ApiInfo(api_version="2.5", public_api_version="2.5")
+        info = ApiInfo(api_version="2.5")
         assert info.api_version == "2.5"
         assert info.public_api_version == "2.5"
         assert info.reported_api_version is None
         assert info.endpoints == []
+
+    def test_create_with_explicit_matching_public_api_version(self):
+        info = ApiInfo(api_version="2.5", public_api_version="2.5")
+        assert info.api_version == "2.5"
+        assert info.public_api_version == "2.5"
 
     def test_create_with_optional_fields(self):
         info = ApiInfo(
@@ -58,6 +63,10 @@ class TestApiInfo:
         info = ApiInfo(api_version="2.5", public_api_version="2.5")
         with pytest.raises(AttributeError):
             info.api_version = "3.0"  # type: ignore[misc]
+
+    def test_reject_mismatched_versions(self):
+        with pytest.raises(ValueError, match="must match"):
+            ApiInfo(api_version="2.5", public_api_version="2.6")
 
 
 class TestApiEndpointInfo:

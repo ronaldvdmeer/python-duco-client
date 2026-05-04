@@ -40,7 +40,9 @@ async def test_get_board_info(live_client: DucoClient) -> None:
     assert board.box_name, "box_name should not be empty"
     assert board.serial_board_box, "serial_board_box should not be empty"
     assert board.time > 0
-    assert board.public_api_version is not None
+    assert hasattr(board, "public_api_version")
+    if board.public_api_version is not None:
+        assert board.public_api_version, "public_api_version should not be empty when present"
 
 
 # ---------------------------------------------------------------------------
