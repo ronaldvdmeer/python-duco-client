@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-duco-client"
-version = "0.3.10"
+version = "0.4.0"
 description = "Async Python client for the Duco ventilation API"
-readme = "README.md"
+dynamic = ["readme"]
 license = "MIT"
 requires-python = ">=3.12"
 authors = [
@@ -51,6 +51,9 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 duco = ["py.typed", "certs/*.pem"]
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md", "CHANGELOG.md"], content-type = "text/markdown" }
 
 # -- pytest ------------------------------------------------------------------
 [tool.pytest.ini_options]

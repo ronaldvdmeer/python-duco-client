@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-04
+
+### Added
+
+- Expose typed API metadata via `ApiEndpointInfo` and the expanded `ApiInfo`
+  model. `/api` responses now include `public_api_version`, optional
+  `reported_api_version`, and typed endpoint inventory data.
+
+### Enhanced
+
+- Extend `BoardInfo` with optional `public_api_version` and `software_version`
+  fields.
+- Parse optional version metadata defensively so older and newer firmware
+  variants remain compatible.
+- Expand unit and focused live integration coverage for API and board metadata.
+- Update the published package description so PyPI includes both `README.md`
+  and `CHANGELOG.md`.
+
 ## [0.3.10] - 2026-05-03
 
 ### Fixed
@@ -92,6 +110,7 @@ HTTP behaviour must now pass `scheme="http"` explicitly.
 
 - Initial release with basic node info retrieval and action control.
 
+[0.4.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.10...v0.4.0
 [0.3.8]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.5...v0.3.6
