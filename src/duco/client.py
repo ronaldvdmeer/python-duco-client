@@ -18,6 +18,7 @@ from .exceptions import (
 )
 from .models import (
     ActionInfo,
+    ApiEndpointInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
@@ -212,8 +213,20 @@ class DucoClient:
 
         """
         data = await self._request("GET", "/api")
+        public_api_version = self._val(data["PublicApiVersion"])
         return ApiInfo(
-            api_version=self._val(data["PublicApiVersion"]),
+            api_version=public_api_version,
+            public_api_version=public_api_version,
+            reported_api_version=self._val(data["ApiVersion"]) if "ApiVersion" in data else None,
+            endpoints=[
+                ApiEndpointInfo(
+                    url=item["Url"],
+                    query_parameters=list(item.get("QueryParameters", [])),
+                    methods=list(item.get("Methods", [])),
+                    modules=list(item.get("Modules", [])),
+                )
+                for item in data.get("ApiInfo", [])
+            ],
         )
 
     # -------------------------------------------------------------------------
@@ -237,6 +250,8 @@ class DucoClient:
             serial_duco_box=self._val(board["SerialDucoBox"]),
             serial_duco_comm=self._val(board["SerialDucoComm"]),
             time=self._val(board["Time"]),
+            public_api_version=self._val(board["PublicApiVersion"]) if "PublicApiVersion" in board else None,
+            software_version=self._val(board["SwVersion"]) if "SwVersion" in board else None,
         )
 
     async def async_get_lan_info(self) -> LanInfo:

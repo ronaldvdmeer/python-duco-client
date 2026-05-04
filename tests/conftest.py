@@ -51,6 +51,48 @@ def board_info_data():
 
 
 @pytest.fixture
+def api_info_full_data():
+    """Mock response for GET /api with optional version fields and endpoints."""
+    return {
+        "ApiVersion": {"Val": "MOCKAPI 2.6.0"},
+        "PublicApiVersion": {"Val": "2.6"},
+        "ApiInfo": [
+            {
+                "Url": "/api",
+                "QueryParameters": [],
+                "Methods": ["GET"],
+            },
+            {
+                "Url": "/info",
+                "QueryParameters": ["module", "submodule", "parameter"],
+                "Methods": ["GET"],
+                "Modules": ["General", "Diag"],
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def board_info_with_optional_versions_data():
+    """Mock response for GET /info?module=General&submodule=Board with optional versions."""
+    return {
+        "General": {
+            "Board": {
+                "PublicApiVersion": {"Val": "2.6"},
+                "BoxName": {"Val": "SILENT_CONNECT"},
+                "BoxSubTypeName": {"Val": "Eu"},
+                "SerialBoardBox": {"Val": "RS2420002577"},
+                "SerialBoardComm": {"Val": "PS2424005629"},
+                "SerialDucoBox": {"Val": "n/a"},
+                "SerialDucoComm": {"Val": "P369348-241126-033"},
+                "SwVersion": {"Val": "2.0.6.0"},
+                "Time": {"Val": 1775082497},
+            }
+        }
+    }
+
+
+@pytest.fixture
 def lan_info_data():
     """Mock response for GET /info?module=General&submodule=Lan."""
     return {
