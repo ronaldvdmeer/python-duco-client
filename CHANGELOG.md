@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.10] - 2026-05-03
 
-### Added
-
-- `ApiInfo` now exposes explicit `public_api_version`, optional
-  `reported_api_version`, and typed endpoint metadata from `/api`.
-- `BoardInfo` now exposes optional `public_api_version` and
-  `software_version` fields when present in the board metadata response.
-
 ### Fixed
 
 - `_ensure_api_key`: `DucoConnectionError` is no longer wrapped as
