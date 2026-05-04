@@ -25,6 +25,8 @@ async def test_get_api_info(live_client: DucoClient) -> None:
     info = await live_client.async_get_api_info()
     assert isinstance(info, ApiInfo)
     assert info.api_version, "api_version should not be empty"
+    assert info.public_api_version, "public_api_version should not be empty"
+    assert isinstance(info.endpoints, list)
 
 
 # ---------------------------------------------------------------------------
@@ -38,6 +40,9 @@ async def test_get_board_info(live_client: DucoClient) -> None:
     assert board.box_name, "box_name should not be empty"
     assert board.serial_board_box, "serial_board_box should not be empty"
     assert board.time > 0
+    assert hasattr(board, "public_api_version")
+    if board.public_api_version is not None:
+        assert board.public_api_version, "public_api_version should not be empty when present"
 
 
 # ---------------------------------------------------------------------------

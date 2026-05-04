@@ -14,6 +14,7 @@ from .exceptions import (
 )
 from .models import (
     ActionInfo,
+    ApiEndpointInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
@@ -41,6 +42,7 @@ except PackageNotFoundError:
 
 __all__ = [
     "ActionInfo",
+    "ApiEndpointInfo",
     "ApiInfo",
     "BoardInfo",
     "DiagComponent",

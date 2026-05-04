@@ -6,6 +6,7 @@ import pytest
 
 from duco.models import (
     ActionInfo,
+    ApiEndpointInfo,
     ApiInfo,
     BoardInfo,
     DiagComponent,
@@ -32,11 +33,50 @@ class TestApiInfo:
     def test_create(self):
         info = ApiInfo(api_version="2.5")
         assert info.api_version == "2.5"
+        assert info.public_api_version == "2.5"
+        assert info.reported_api_version is None
+        assert info.endpoints == []
+
+    def test_create_with_explicit_matching_public_api_version(self):
+        info = ApiInfo(api_version="2.5", public_api_version="2.5")
+        assert info.api_version == "2.5"
+        assert info.public_api_version == "2.5"
+
+    def test_create_with_optional_fields(self):
+        info = ApiInfo(
+            api_version="2.6",
+            public_api_version="2.6",
+            reported_api_version="MOCKAPI 2.6.0",
+            endpoints=[
+                ApiEndpointInfo(
+                    url="/info",
+                    query_parameters=["module"],
+                    methods=["GET"],
+                    modules=["General"],
+                )
+            ],
+        )
+        assert info.reported_api_version == "MOCKAPI 2.6.0"
+        assert info.endpoints[0].url == "/info"
 
     def test_frozen(self):
-        info = ApiInfo(api_version="2.5")
+        info = ApiInfo(api_version="2.5", public_api_version="2.5")
         with pytest.raises(AttributeError):
             info.api_version = "3.0"  # type: ignore[misc]
+
+    def test_reject_mismatched_versions(self):
+        with pytest.raises(ValueError, match="must match"):
+            ApiInfo(api_version="2.5", public_api_version="2.6")
+
+
+class TestApiEndpointInfo:
+    """Test ApiEndpointInfo dataclass."""
+
+    def test_defaults(self):
+        endpoint = ApiEndpointInfo(url="/api")
+        assert endpoint.query_parameters == []
+        assert endpoint.methods == []
+        assert endpoint.modules == []
 
 
 class TestBoardInfo:
@@ -51,10 +91,27 @@ class TestBoardInfo:
             serial_duco_box="n/a",
             serial_duco_comm="P369348-241126-033",
             time=1775082497,
+            public_api_version="2.5",
         )
         assert board.box_name == "SILENT_CONNECT"
         assert board.box_sub_type_name == "Eu"
         assert board.time == 1775082497
+        assert board.public_api_version == "2.5"
+        assert board.software_version is None
+
+    def test_create_with_optional_software_version(self):
+        board = BoardInfo(
+            box_name="SILENT_CONNECT",
+            box_sub_type_name="Eu",
+            serial_board_box="RS2420002577",
+            serial_board_comm="PS2424005629",
+            serial_duco_box="n/a",
+            serial_duco_comm="P369348-241126-033",
+            time=1775082497,
+            public_api_version="2.6",
+            software_version="2.0.6.0",
+        )
+        assert board.software_version == "2.0.6.0"
 
     def test_frozen(self):
         board = BoardInfo(

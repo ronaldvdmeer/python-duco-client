@@ -46,6 +46,23 @@ async def test_get_api_info(client, base_url, api_info_data):
         m.get(f"{base_url}/api", payload=api_info_data)
         info = await client.async_get_api_info()
     assert info.api_version == "2.5"
+    assert info.public_api_version == "2.5"
+    assert info.reported_api_version is None
+    assert info.endpoints == []
+
+
+async def test_get_api_info_with_optional_versions_and_endpoints(client, base_url, api_info_full_data):
+    with aioresponses() as m:
+        m.get(f"{base_url}/api", payload=api_info_full_data)
+        info = await client.async_get_api_info()
+    assert info.api_version == "2.6"
+    assert info.public_api_version == "2.6"
+    assert info.reported_api_version == "MOCKAPI 2.6.0"
+    assert len(info.endpoints) == 2
+    assert info.endpoints[1].url == "/info"
+    assert info.endpoints[1].query_parameters == ["module", "submodule", "parameter"]
+    assert info.endpoints[1].methods == ["GET"]
+    assert info.endpoints[1].modules == ["General", "Diag"]
 
 
 # ---------------------------------------------------------------------------
@@ -67,6 +84,19 @@ async def test_get_board_info(client, base_url, board_info_data):
     assert board.serial_duco_box == "n/a"
     assert board.serial_duco_comm == "P369348-241126-033"
     assert board.time == 1775082497
+    assert board.public_api_version == "2.5"
+    assert board.software_version is None
+
+
+async def test_get_board_info_with_optional_versions(client, base_url, board_info_with_optional_versions_data):
+    with aioresponses() as m:
+        m.get(
+            f"{base_url}/info?module=General&submodule=Board",
+            payload=board_info_with_optional_versions_data,
+        )
+        board = await client.async_get_board_info()
+    assert board.public_api_version == "2.6"
+    assert board.software_version == "2.0.6.0"
 
 
 # ---------------------------------------------------------------------------

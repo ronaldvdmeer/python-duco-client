@@ -65,15 +65,58 @@ class DiagStatus(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class ApiInfo:
-    """API version and endpoint information.
+class ApiEndpointInfo:
+    """Endpoint metadata reported by ``GET /api``.
 
     Attributes:
-        api_version: Public API version string (e.g. ``"2.5"``).
+        url: API path (e.g. ``"/info"``).
+        query_parameters: Supported query parameters for the endpoint.
+        methods: Supported HTTP methods.
+        modules: Supported modules when the endpoint is filterable.
+
+    """
+
+    url: str
+    query_parameters: list[str] = field(default_factory=list)
+    methods: list[str] = field(default_factory=list)
+    modules: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class ApiInfo:
+    """API version metadata and endpoint information.
+
+    Attributes:
+        api_version: Backward-compatible alias for ``public_api_version``.
+        public_api_version: Public API version string (e.g. ``"2.5"``).
+        reported_api_version: Optional additional API version string reported by
+            some firmware variants.
+        endpoints: Endpoint metadata reported by ``GET /api``.
 
     """
 
     api_version: str
+    public_api_version: str
+    reported_api_version: str | None = None
+    endpoints: list[ApiEndpointInfo] = field(default_factory=list)
+
+    def __init__(
+        self,
+        api_version: str,
+        public_api_version: str | None = None,
+        reported_api_version: str | None = None,
+        endpoints: list[ApiEndpointInfo] | None = None,
+    ) -> None:
+        """Initialize API info while preserving constructor compatibility."""
+        resolved_public_api_version = api_version if public_api_version is None else public_api_version
+        if resolved_public_api_version != api_version:
+            msg = "api_version and public_api_version must match"
+            raise ValueError(msg)
+
+        object.__setattr__(self, "api_version", api_version)
+        object.__setattr__(self, "public_api_version", resolved_public_api_version)
+        object.__setattr__(self, "reported_api_version", reported_api_version)
+        object.__setattr__(self, "endpoints", [] if endpoints is None else endpoints)
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +131,10 @@ class BoardInfo:
         serial_duco_box: Duco serial number for the box.
         serial_duco_comm: Duco serial number for the communication module.
         time: Current Unix timestamp on the box.
+        public_api_version: Public API version reported in the board metadata,
+            or ``None`` when absent.
+        software_version: Optional board software version when reported by the
+            device firmware.
 
     """
 
@@ -98,6 +145,8 @@ class BoardInfo:
     serial_duco_box: str
     serial_duco_comm: str
     time: int
+    public_api_version: str | None = None
+    software_version: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
