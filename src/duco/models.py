@@ -96,19 +96,27 @@ class ApiInfo:
     """
 
     api_version: str
-    public_api_version: str | None = None
+    public_api_version: str
     reported_api_version: str | None = None
     endpoints: list[ApiEndpointInfo] = field(default_factory=list)
 
-    def __post_init__(self) -> None:
-        """Keep ``api_version`` and ``public_api_version`` in sync."""
-        if self.public_api_version is None:
-            object.__setattr__(self, "public_api_version", self.api_version)
-            return
-
-        if self.public_api_version != self.api_version:
+    def __init__(
+        self,
+        api_version: str,
+        public_api_version: str | None = None,
+        reported_api_version: str | None = None,
+        endpoints: list[ApiEndpointInfo] | None = None,
+    ) -> None:
+        """Initialize API info while preserving constructor compatibility."""
+        resolved_public_api_version = api_version if public_api_version is None else public_api_version
+        if resolved_public_api_version != api_version:
             msg = "api_version and public_api_version must match"
             raise ValueError(msg)
+
+        object.__setattr__(self, "api_version", api_version)
+        object.__setattr__(self, "public_api_version", resolved_public_api_version)
+        object.__setattr__(self, "reported_api_version", reported_api_version)
+        object.__setattr__(self, "endpoints", [] if endpoints is None else endpoints)
 
 
 @dataclass(frozen=True, slots=True)
