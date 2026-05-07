@@ -191,6 +191,80 @@ async def test_get_nodes(client, base_url, nodes_data):
     assert bsrh.sensor.temp == 27.9
 
 
+async def test_get_nodes_with_wifi_network_type(client, base_url):
+    """Verify that a node with NetworkType 'WI' is parsed without error."""
+    wifi_node_data = {
+        "Nodes": [
+            {
+                "Node": 3,
+                "General": {
+                    "Type": {"Val": "UCCO2"},
+                    "SubType": {"Val": 0},
+                    "NetworkType": {"Val": "WI"},
+                    "Parent": {"Val": 1},
+                    "Asso": {"Val": 1},
+                    "Name": {"Val": ""},
+                    "Identify": {"Val": 0},
+                },
+                "Ventilation": {
+                    "State": {"Val": "AUTO"},
+                    "TimeStateRemain": {"Val": 0},
+                    "TimeStateEnd": {"Val": 0},
+                    "Mode": {"Val": "-"},
+                },
+                "Sensor": {
+                    "Temp": {"Val": 21.0},
+                    "Co2": {"Val": 700},
+                    "IaqCo2": {"Val": 80},
+                },
+            }
+        ]
+    }
+    with aioresponses() as m:
+        m.get(f"{base_url}/info/nodes", payload=wifi_node_data)
+        nodes = await client.async_get_nodes()
+
+    assert len(nodes) == 1
+    assert nodes[0].general.network_type == NetworkType.WI
+
+
+async def test_get_nodes_with_unknown_network_type(client, base_url):
+    """Verify that a node with an unrecognised NetworkType falls back to UNKNOWN."""
+    unknown_node_data = {
+        "Nodes": [
+            {
+                "Node": 4,
+                "General": {
+                    "Type": {"Val": "UCCO2"},
+                    "SubType": {"Val": 0},
+                    "NetworkType": {"Val": "FUTURE_TYPE"},
+                    "Parent": {"Val": 1},
+                    "Asso": {"Val": 1},
+                    "Name": {"Val": ""},
+                    "Identify": {"Val": 0},
+                },
+                "Ventilation": {
+                    "State": {"Val": "AUTO"},
+                    "TimeStateRemain": {"Val": 0},
+                    "TimeStateEnd": {"Val": 0},
+                    "Mode": {"Val": "-"},
+                },
+                "Sensor": {
+                    "Temp": {"Val": 21.0},
+                    "Co2": {"Val": 700},
+                    "IaqCo2": {"Val": 80},
+                },
+            }
+        ]
+    }
+    with aioresponses() as m:
+        m.get(f"{base_url}/info/nodes", payload=unknown_node_data)
+        nodes = await client.async_get_nodes()
+
+    assert len(nodes) == 1
+    assert nodes[0].general.network_type == NetworkType.UNKNOWN
+
+
 # ---------------------------------------------------------------------------
 # async_get_node
 # ---------------------------------------------------------------------------
