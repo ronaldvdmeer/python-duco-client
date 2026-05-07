@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-08
+
+### Added
+
+- `async_detect_board_family(host, session, ssl_context, timeout)` — standalone
+  async helper that detects the board family of a Duco box without requiring a
+  `DucoClient` instance. Probes HTTPS first (`/info?module=General&submodule=Board`)
+  and falls back to HTTP (`/nodeinfoget?node=1`) when HTTPS fails with a
+  transport or protocol error.
+- `BoardFamily` StrEnum (`CONNECTIVITY_BOARD`, `COMMUNICATION_PRINT`) returned
+  by the detection helper. Both are exported from the top-level `duco` package.
+- Both symbols are documented in `docs/api-reference.md`.
+
+### Changed
+
+- When the HTTPS probe returns any HTTP response (including 404), the host is
+  considered reachable. A subsequent HTTP transport failure in that case now
+  raises `DucoError` instead of `DucoConnectionError`, so callers can correctly
+  distinguish "host unreachable" from "host reachable but board type unrecognised".
+
 ## [0.4.2] - 2026-05-07
 
 ### Added
