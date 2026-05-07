@@ -854,7 +854,11 @@ async def async_detect_board_family(
                 except ValueError as err:
                     msg = f"HTTPS probe returned non-JSON response: {err}"
                     raise DucoError(msg) from err
-                if isinstance(data, dict) and "General" in data and "Board" in data["General"]:
+                if (
+                    isinstance(data, dict)
+                    and isinstance(data.get("General"), dict)
+                    and "Board" in data["General"]
+                ):
                     return BoardFamily.CONNECTIVITY_BOARD
                 msg = "HTTPS probe responded but did not match Connectivity Board structure"
                 raise DucoError(msg)

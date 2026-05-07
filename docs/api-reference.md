@@ -25,13 +25,16 @@ import asyncio
 from duco import async_detect_board_family, BoardFamily, build_ssl_context
 import aiohttp
 
-async with aiohttp.ClientSession() as session:
-    ssl_context = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
-    family = await async_detect_board_family("192.168.1.100", session, ssl_context=ssl_context)
+async def main() -> None:
+    async with aiohttp.ClientSession() as session:
+        ssl_context = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
+        family = await async_detect_board_family("192.168.1.100", session, ssl_context=ssl_context)
 
-    if family == BoardFamily.CONNECTIVITY_BOARD:
-        # proceed with DucoClient
-        ...
+        if family == BoardFamily.CONNECTIVITY_BOARD:
+            # proceed with DucoClient
+            ...
+
+asyncio.run(main())
 ```
 
 **Parameters:**

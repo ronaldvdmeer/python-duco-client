@@ -836,6 +836,19 @@ async def test_detect_board_family_unrecognised_https_response(mock_host):
                 await async_detect_board_family(mock_host, session)
 
 
+async def test_detect_board_family_https_general_null(mock_host):
+    """HTTPS probe returns 200 with General=null → DucoError, not DucoConnectionError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                payload={"General": None},
+                status=200,
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)
+
+
 async def test_detect_board_family_unrecognised_http_response(mock_host):
     """HTTP probe returns 200 but missing required fields → DucoError."""
     async with aiohttp.ClientSession() as session:
