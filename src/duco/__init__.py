@@ -5,7 +5,7 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 
 from ._ssl import build_ssl_context
-from .client import DucoClient
+from .client import DucoClient, async_detect_board_family
 from .exceptions import (
     DucoAuthenticationError,
     DucoConnectionError,
@@ -16,6 +16,7 @@ from .models import (
     ActionInfo,
     ApiEndpointInfo,
     ApiInfo,
+    BoardFamily,
     BoardInfo,
     DiagComponent,
     DiagStatus,
@@ -44,6 +45,7 @@ __all__ = [
     "ActionInfo",
     "ApiEndpointInfo",
     "ApiInfo",
+    "BoardFamily",
     "BoardInfo",
     "DiagComponent",
     "DiagStatus",
@@ -67,5 +69,6 @@ __all__ = [
     "Zone",
     "ZoneGroup",
     "__version__",
+    "async_detect_board_family",
     "build_ssl_context",
 ]

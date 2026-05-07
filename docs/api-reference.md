@@ -1,6 +1,6 @@
 # API Reference
 
-All methods are `async` and belong to `DucoClient`.
+All methods on `DucoClient` are `async`. The library also exposes module-level async helpers that work without a `DucoClient` instance.
 
 ```python
 from duco import DucoClient
@@ -9,6 +9,49 @@ import aiohttp
 async with aiohttp.ClientSession() as session:
     client = DucoClient(session=session, host="192.168.1.100")
 ```
+
+---
+
+## Board detection
+
+### `async_detect_board_family(host, session, ssl_context=None, timeout=10.0)`
+
+Detect the hardware board family of a Duco box without authentication. Useful before constructing a `DucoClient` to determine which protocol the box supports.
+
+Probes HTTPS first (Connectivity Board); falls back to HTTP when the HTTPS probe fails with a transport-level error or returns 404 (Communication and Print Board).
+
+```python
+import asyncio
+from duco import async_detect_board_family, BoardFamily, build_ssl_context
+import aiohttp
+
+async def main() -> None:
+    async with aiohttp.ClientSession() as session:
+        ssl_context = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
+        family = await async_detect_board_family("192.168.1.100", session, ssl_context=ssl_context)
+
+        if family == BoardFamily.CONNECTIVITY_BOARD:
+            # proceed with DucoClient
+            ...
+
+asyncio.run(main())
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `host` | `str` | — | IP address or hostname of the Duco box |
+| `session` | `aiohttp.ClientSession` | — | aiohttp session for HTTP requests |
+| `ssl_context` | `ssl.SSLContext \| None` | `None` | Optional pre-built SSL context for the HTTPS probe |
+| `timeout` | `float` | `10.0` | Request timeout in seconds |
+
+**Returns:** `BoardFamily`
+
+**Raises:**
+
+- `DucoConnectionError` — host is unreachable on both transports
+- `DucoError` — host responds but neither board family is recognised
 
 ---
 
@@ -609,6 +652,15 @@ Full list of ventilation states, see [Ventilation states](#ventilation-states) a
 | `DiagStatus.OK` | System operating normally |
 | `DiagStatus.ERROR` | Fault detected |
 | `DiagStatus.DISABLE` | Subsystem disabled |
+
+### `BoardFamily`
+
+Hardware board family returned by `async_detect_board_family()`.
+
+| Value | Description |
+|---|---|
+| `BoardFamily.CONNECTIVITY_BOARD` | Modern Connectivity Board (HTTPS, API key) |
+| `BoardFamily.COMMUNICATION_PRINT` | Older Communication and Print Board (HTTP, no auth) |
 
 ```python
 from duco import VentilationState
