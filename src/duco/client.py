@@ -7,6 +7,7 @@ import ssl
 import time as _time
 from typing import Any
 
+import aiohttp
 from aiohttp import ClientSession
 
 from ._ssl import build_ssl_context
@@ -91,6 +92,7 @@ class DucoClient:
         host: str,
         scheme: str = "https",
         ssl_context: ssl.SSLContext | None = None,
+        request_timeout: float = 10.0,
     ) -> None:
         """Initialize the client.
 
@@ -104,10 +106,14 @@ class DucoClient:
                 and *scheme* is ``"https"``, :func:`build_ssl_context` is
                 called implicitly — which performs blocking I/O and should not
                 be used inside an asyncio event loop.
+            request_timeout: Total timeout in seconds for each HTTP request
+                (default ``10.0``).  A timed-out request raises
+                :exc:`DucoConnectionError`.
 
         """
         self._session = session
         self._base_url = f"{scheme}://{host}"
+        self._timeout = aiohttp.ClientTimeout(total=request_timeout)
         if ssl_context is not None:
             self._ssl_context: ssl.SSLContext | None = ssl_context
         elif scheme == "https":
@@ -180,6 +186,7 @@ class DucoClient:
                 method,
                 f"{self._base_url}{path}",
                 ssl=self._ssl_context if self._ssl_context is not None else True,
+                timeout=self._timeout,
                 **kwargs,
             )
         except Exception as err:

@@ -613,6 +613,14 @@ async def test_connection_error(unauthenticated_client, base_url, board_info_dat
             await unauthenticated_client.async_get_api_info()
 
 
+async def test_request_timeout_raises_connection_error(client, base_url):
+    """A timed-out request must surface as DucoConnectionError."""
+    with aioresponses() as m:
+        m.get(f"{base_url}/api", exception=TimeoutError())
+        with pytest.raises(DucoConnectionError):
+            await client.async_get_api_info()
+
+
 async def test_http_error(client, base_url):
     with aioresponses() as m:
         m.get(f"{base_url}/api", status=500)
