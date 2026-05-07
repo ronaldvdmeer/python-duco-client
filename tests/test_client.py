@@ -896,3 +896,31 @@ async def test_detect_board_family_http_non_json_response(mock_host):
             )
             with pytest.raises(DucoError):
                 await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_https_error_status(mock_host):
+    """HTTPS probe returns unexpected non-404 error status → DucoError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                status=500,
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_http_error_status(mock_host):
+    """HTTP probe returns an error status → DucoError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                status=404,
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                status=500,
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)

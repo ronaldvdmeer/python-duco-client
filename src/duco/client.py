@@ -839,7 +839,11 @@ async def async_detect_board_family(
         https_ssl: ssl.SSLContext = ssl_context
     else:
         # build_ssl_context() reads a bundled CA file; offload to avoid blocking the event loop.
-        https_ssl = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
+        try:
+            https_ssl = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
+        except Exception as err:
+            msg = f"Failed to build SSL context for Duco box at {host}: {err}"
+            raise DucoConnectionError(msg) from err
 
     try:
         async with session.get(
