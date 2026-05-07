@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `DucoClient` now enforces a per-request timeout via a new `request_timeout`
+  constructor parameter (default `10.0` seconds). A request that exceeds the
+  timeout is raised as `DucoConnectionError`, consistent with other connection
+  failures. Callers no longer need to wrap individual calls in their own
+  `asyncio.timeout()`.
+
 ## [0.4.1] - 2026-05-07
 
 ### Fixed
@@ -119,7 +129,11 @@ HTTP behaviour must now pass `scheme="http"` explicitly.
 
 - Initial release with basic node info retrieval and action control.
 
+[Unreleased]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.10...v0.4.0
+[0.3.10]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.9...v0.3.10
+[0.3.9]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.5...v0.3.6
