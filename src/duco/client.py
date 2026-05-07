@@ -845,6 +845,11 @@ async def async_detect_board_family(
             msg = f"Failed to build SSL context for Duco box at {host}: {err}"
             raise DucoConnectionError(msg) from err
 
+    # Track whether HTTPS returned any HTTP response (even 404). When it did,
+    # the host is reachable, so an HTTP transport failure is DucoError, not
+    # DucoConnectionError (which is reserved for "host unreachable on both transports").
+    https_responded = False
+
     try:
         async with session.get(
             f"https://{host}/info",
@@ -852,6 +857,7 @@ async def async_detect_board_family(
             ssl=https_ssl,
             timeout=client_timeout,
         ) as response:
+            https_responded = True
             if response.status < 400:
                 try:
                     data = await response.json(content_type=None)
@@ -898,5 +904,8 @@ async def async_detect_board_family(
     except (DucoError, DucoConnectionError):
         raise
     except Exception as err:
+        if https_responded:
+            msg = f"HTTP probe failed for reachable host {host}: {err}"
+            raise DucoError(msg) from err
         msg = f"Failed to connect to Duco box at {host}: {err}"
         raise DucoConnectionError(msg) from err
