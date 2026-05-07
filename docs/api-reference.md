@@ -21,11 +21,12 @@ Detect the hardware board family of a Duco box without authentication. Useful be
 Probes HTTPS first (Connectivity Board); falls back to HTTP when the HTTPS probe fails with a transport-level error or returns 404 (Communication and Print Board).
 
 ```python
+import asyncio
 from duco import async_detect_board_family, BoardFamily, build_ssl_context
 import aiohttp
 
 async with aiohttp.ClientSession() as session:
-    ssl_context = await asyncio.get_event_loop().run_in_executor(None, build_ssl_context)
+    ssl_context = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
     family = await async_detect_board_family("192.168.1.100", session, ssl_context=ssl_context)
 
     if family == BoardFamily.CONNECTIVITY_BOARD:

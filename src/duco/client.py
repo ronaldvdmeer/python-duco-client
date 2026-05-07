@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json as _json
 import ssl
 import time as _time
@@ -803,6 +804,7 @@ _HTTPS_FALLBACK_ERRORS = (
     aiohttp.ClientConnectorError,
     aiohttp.ServerDisconnectedError,
     aiohttp.ClientOSError,
+    asyncio.TimeoutError,
 )
 
 
@@ -833,24 +835,24 @@ async def async_detect_board_family(
 
     """
     client_timeout = aiohttp.ClientTimeout(total=timeout)
-    https_ssl: ssl.SSLContext | bool = ssl_context if ssl_context is not None else True
+    https_ssl: ssl.SSLContext = ssl_context if ssl_context is not None else build_ssl_context()
 
     try:
-        response = await session.get(
+        async with session.get(
             f"https://{host}/info",
             params={"module": "General", "submodule": "Board"},
             ssl=https_ssl,
             timeout=client_timeout,
-        )
-        if response.status < 400:
-            data = await response.json()
-            if isinstance(data, dict) and "General" in data and "Board" in data["General"]:
-                return BoardFamily.CONNECTIVITY_BOARD
-            msg = "HTTPS probe responded but did not match Connectivity Board structure"
-            raise DucoError(msg)
-        if response.status != 404:
-            msg = f"HTTPS probe returned unexpected status {response.status}"
-            raise DucoError(msg)
+        ) as response:
+            if response.status < 400:
+                data = await response.json(content_type=None)
+                if isinstance(data, dict) and "General" in data and "Board" in data["General"]:
+                    return BoardFamily.CONNECTIVITY_BOARD
+                msg = "HTTPS probe responded but did not match Connectivity Board structure"
+                raise DucoError(msg)
+            if response.status != 404:
+                msg = f"HTTPS probe returned unexpected status {response.status}"
+                raise DucoError(msg)
     except _HTTPS_FALLBACK_ERRORS:
         pass
     except (DucoError, DucoConnectionError):
@@ -860,19 +862,19 @@ async def async_detect_board_family(
         raise DucoConnectionError(msg) from err
 
     try:
-        response = await session.get(
+        async with session.get(
             f"http://{host}/nodeinfoget",
             params={"node": "1"},
             timeout=client_timeout,
-        )
-        if response.status < 400:
-            data = await response.json(content_type=None)
-            if isinstance(data, dict) and "devtype" in data and "state" in data:
-                return BoardFamily.COMMUNICATION_PRINT
-            msg = "HTTP probe responded but did not match Communication and Print Board structure"
+        ) as response:
+            if response.status < 400:
+                data = await response.json(content_type=None)
+                if isinstance(data, dict) and "devtype" in data and "state" in data:
+                    return BoardFamily.COMMUNICATION_PRINT
+                msg = "HTTP probe responded but did not match Communication and Print Board structure"
+                raise DucoError(msg)
+            msg = f"HTTP probe returned unexpected status {response.status}"
             raise DucoError(msg)
-        msg = f"HTTP probe returned unexpected status {response.status}"
-        raise DucoError(msg)
     except (DucoError, DucoConnectionError):
         raise
     except Exception as err:
