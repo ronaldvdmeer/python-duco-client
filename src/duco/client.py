@@ -182,11 +182,11 @@ class DucoClient:
                 kwargs.setdefault("headers", {})["Content-Type"] = "application/json"
             if self._api_key is not None:
                 kwargs.setdefault("headers", {})["Api-Key"] = self._api_key
+            kwargs.setdefault("timeout", self._timeout)
             response = await self._session.request(
                 method,
                 f"{self._base_url}{path}",
                 ssl=self._ssl_context if self._ssl_context is not None else True,
-                timeout=self._timeout,
                 **kwargs,
             )
         except Exception as err:
