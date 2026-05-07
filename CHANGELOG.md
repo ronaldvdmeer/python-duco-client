@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-05-07
+
+### Fixed
+
+- Add `WI` (Wi-Fi) to `NetworkType` enum so Duco nodes connected over Wi-Fi no
+  longer raise `ValueError: 'WI' is not a valid NetworkType`. Any future
+  unrecognised network type values now fall back to `NetworkType.UNKNOWN`
+  instead of crashing.
+
 ## [0.4.0] - 2026-05-04
 
 ### Added
