@@ -339,10 +339,15 @@ class DucoClient:
             node_type = NodeType(raw_type)
         except ValueError:
             node_type = NodeType.UNKNOWN
+        raw_network_type = self._val(general_data["NetworkType"])
+        try:
+            network_type = NetworkType(raw_network_type)
+        except ValueError:
+            network_type = NetworkType.UNKNOWN
         general = NodeGeneralInfo(
             node_type=node_type,
             sub_type=self._val(general_data["SubType"]),
-            network_type=NetworkType(self._val(general_data["NetworkType"])),
+            network_type=network_type,
             parent=self._val(general_data["Parent"]),
             asso=self._val(general_data["Asso"]),
             name=self._val(general_data["Name"]),
