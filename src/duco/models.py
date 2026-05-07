@@ -46,6 +46,7 @@ class NetworkType(StrEnum):
 
     VIRT = "VIRT"
     RF = "RF"
+    WI = "WI"
 
 
 class VentilationMode(StrEnum):
