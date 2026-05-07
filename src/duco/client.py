@@ -835,7 +835,11 @@ async def async_detect_board_family(
 
     """
     client_timeout = aiohttp.ClientTimeout(total=timeout)
-    https_ssl: ssl.SSLContext = ssl_context if ssl_context is not None else build_ssl_context()
+    if ssl_context is not None:
+        https_ssl: ssl.SSLContext = ssl_context
+    else:
+        # build_ssl_context() reads a bundled CA file; offload to avoid blocking the event loop.
+        https_ssl = await asyncio.get_running_loop().run_in_executor(None, build_ssl_context)
 
     try:
         async with session.get(
@@ -845,7 +849,11 @@ async def async_detect_board_family(
             timeout=client_timeout,
         ) as response:
             if response.status < 400:
-                data = await response.json(content_type=None)
+                try:
+                    data = await response.json(content_type=None)
+                except ValueError as err:
+                    msg = f"HTTPS probe returned non-JSON response: {err}"
+                    raise DucoError(msg) from err
                 if isinstance(data, dict) and "General" in data and "Board" in data["General"]:
                     return BoardFamily.CONNECTIVITY_BOARD
                 msg = "HTTPS probe responded but did not match Connectivity Board structure"
@@ -868,7 +876,11 @@ async def async_detect_board_family(
             timeout=client_timeout,
         ) as response:
             if response.status < 400:
-                data = await response.json(content_type=None)
+                try:
+                    data = await response.json(content_type=None)
+                except ValueError as err:
+                    msg = f"HTTP probe returned non-JSON response: {err}"
+                    raise DucoError(msg) from err
                 if isinstance(data, dict) and "devtype" in data and "state" in data:
                     return BoardFamily.COMMUNICATION_PRINT
                 msg = "HTTP probe responded but did not match Communication and Print Board structure"

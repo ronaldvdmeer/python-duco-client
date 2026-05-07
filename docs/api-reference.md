@@ -1,6 +1,6 @@
 # API Reference
 
-All methods are `async` and belong to `DucoClient`.
+All methods on `DucoClient` are `async`. The library also exposes module-level async helpers that work without a `DucoClient` instance.
 
 ```python
 from duco import DucoClient

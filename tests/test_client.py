@@ -851,3 +851,35 @@ async def test_detect_board_family_unrecognised_http_response(mock_host):
             )
             with pytest.raises(DucoError):
                 await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_https_non_json_response(mock_host):
+    """HTTPS probe returns 200 with non-JSON body → DucoError (not DucoConnectionError)."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                body=b"<html>not json</html>",
+                status=200,
+                content_type="text/html",
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_http_non_json_response(mock_host):
+    """HTTP probe returns 200 with non-JSON body → DucoError (not DucoConnectionError)."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                status=404,
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                body=b"not json",
+                status=200,
+                content_type="text/plain",
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)
