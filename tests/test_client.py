@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import time
+from unittest.mock import MagicMock
 
 import aiohttp
 import pytest
 from aioresponses import aioresponses
 
-from duco.client import DucoClient
+from duco.client import DucoClient, async_detect_board_family
 from duco.exceptions import DucoAuthenticationError, DucoConnectionError, DucoError, DucoRateLimitError
-from duco.models import DiagStatus, NetworkType, NodeType, VentilationState
+from duco.models import BoardFamily, DiagStatus, NetworkType, NodeType, VentilationState
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -726,3 +727,127 @@ async def test_authentication_error_is_duco_error(unauthenticated_client, base_u
         )
         with pytest.raises(DucoError):
             await unauthenticated_client.async_get_api_info()
+
+
+# ---------------------------------------------------------------------------
+# async_detect_board_family
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def _board_info_https_response():
+    """Minimal Connectivity Board response for the HTTPS /info probe."""
+    return {
+        "General": {
+            "Board": {
+                "BoxName": {"Val": "DucoBox Energy"},
+                "SerialBoardBox": {"Val": "SN12345678"},
+            }
+        }
+    }
+
+
+@pytest.fixture
+def _node_info_http_response():
+    """Minimal Communication and Print Board response for the HTTP probe."""
+    return {
+        "devtype": "0000-4251",
+        "state": "AUTO",
+        "location": "Meterkast",
+    }
+
+
+async def test_detect_board_family_connectivity_board(mock_host, _board_info_https_response):
+    """HTTPS probe returning a valid Board structure → CONNECTIVITY_BOARD."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                payload=_board_info_https_response,
+                status=200,
+            )
+            result = await async_detect_board_family(mock_host, session)
+
+    assert result == BoardFamily.CONNECTIVITY_BOARD
+
+
+async def test_detect_board_family_communication_print_after_ssl_error(mock_host, _node_info_http_response):
+    """SSL error on HTTPS probe → fall back to HTTP → COMMUNICATION_PRINT."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                exception=aiohttp.ClientSSLError(MagicMock(), OSError("ssl handshake failed")),
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                payload=_node_info_http_response,
+                status=200,
+            )
+            result = await async_detect_board_family(mock_host, session)
+
+    assert result == BoardFamily.COMMUNICATION_PRINT
+
+
+async def test_detect_board_family_communication_print_after_https_404(mock_host, _node_info_http_response):
+    """HTTPS /info returns 404 → fall back to HTTP → COMMUNICATION_PRINT."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                status=404,
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                payload=_node_info_http_response,
+                status=200,
+            )
+            result = await async_detect_board_family(mock_host, session)
+
+    assert result == BoardFamily.COMMUNICATION_PRINT
+
+
+async def test_detect_board_family_connection_error_both_transports(mock_host):
+    """Both HTTPS and HTTP probes fail → DucoConnectionError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                exception=aiohttp.ClientConnectorError(MagicMock(), OSError("refused")),
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                exception=aiohttp.ClientConnectorError(MagicMock(), OSError("refused")),
+            )
+            with pytest.raises(DucoConnectionError):
+                await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_unrecognised_https_response(mock_host):
+    """HTTPS probe returns 200 with unexpected structure → DucoError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                payload={"unexpected": "structure"},
+                status=200,
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)
+
+
+async def test_detect_board_family_unrecognised_http_response(mock_host):
+    """HTTP probe returns 200 but missing required fields → DucoError."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as m:
+            m.get(
+                f"https://{mock_host}/info?module=General&submodule=Board",
+                status=404,
+            )
+            m.get(
+                f"http://{mock_host}/nodeinfoget?node=1",
+                payload={"unexpected": "structure"},
+                status=200,
+            )
+            with pytest.raises(DucoError):
+                await async_detect_board_family(mock_host, session)

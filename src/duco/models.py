@@ -66,6 +66,13 @@ class DiagStatus(StrEnum):
     ERROR = "Error"
 
 
+class BoardFamily(StrEnum):
+    """Hardware board family of the Duco box."""
+
+    CONNECTIVITY_BOARD = "connectivity_board"
+    COMMUNICATION_PRINT = "communication_print"
+
+
 @dataclass(frozen=True, slots=True)
 class ApiEndpointInfo:
     """Endpoint metadata reported by ``GET /api``.

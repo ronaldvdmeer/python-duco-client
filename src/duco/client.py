@@ -21,6 +21,7 @@ from .models import (
     ActionInfo,
     ApiEndpointInfo,
     ApiInfo,
+    BoardFamily,
     BoardInfo,
     DiagComponent,
     DiagStatus,
@@ -795,3 +796,85 @@ class DucoClient:
             f"/config/nodes/{node_id}",
             json={"Name": name},
         )
+
+
+_HTTPS_FALLBACK_ERRORS = (
+    aiohttp.ClientSSLError,
+    aiohttp.ClientConnectorError,
+    aiohttp.ServerDisconnectedError,
+    aiohttp.ClientOSError,
+)
+
+
+async def async_detect_board_family(
+    host: str,
+    session: aiohttp.ClientSession,
+    ssl_context: ssl.SSLContext | None = None,
+    timeout: float = 10.0,
+) -> BoardFamily:
+    """Detect the hardware board family of a Duco box.
+
+    Probes the device without authentication. Tries HTTPS first (Connectivity
+    Board); falls back to HTTP (Communication and Print Board) when the HTTPS
+    probe fails with a transport-level error or returns 404.
+
+    Args:
+        host: IP address or hostname of the Duco box.
+        session: aiohttp session for HTTP requests.
+        ssl_context: Optional pre-built SSL context for the HTTPS probe.
+        timeout: Request timeout in seconds (default ``10.0``).
+
+    Returns:
+        The detected :class:`BoardFamily`.
+
+    Raises:
+        DucoConnectionError: If the host is unreachable on both transports.
+        DucoError: If the host responds but neither board family is recognised.
+
+    """
+    client_timeout = aiohttp.ClientTimeout(total=timeout)
+    https_ssl: ssl.SSLContext | bool = ssl_context if ssl_context is not None else True
+
+    try:
+        response = await session.get(
+            f"https://{host}/info",
+            params={"module": "General", "submodule": "Board"},
+            ssl=https_ssl,
+            timeout=client_timeout,
+        )
+        if response.status < 400:
+            data = await response.json()
+            if isinstance(data, dict) and "General" in data and "Board" in data["General"]:
+                return BoardFamily.CONNECTIVITY_BOARD
+            msg = "HTTPS probe responded but did not match Connectivity Board structure"
+            raise DucoError(msg)
+        if response.status != 404:
+            msg = f"HTTPS probe returned unexpected status {response.status}"
+            raise DucoError(msg)
+    except _HTTPS_FALLBACK_ERRORS:
+        pass
+    except (DucoError, DucoConnectionError):
+        raise
+    except Exception as err:
+        msg = f"Failed to connect to Duco box at {host}: {err}"
+        raise DucoConnectionError(msg) from err
+
+    try:
+        response = await session.get(
+            f"http://{host}/nodeinfoget",
+            params={"node": "1"},
+            timeout=client_timeout,
+        )
+        if response.status < 400:
+            data = await response.json(content_type=None)
+            if isinstance(data, dict) and "devtype" in data and "state" in data:
+                return BoardFamily.COMMUNICATION_PRINT
+            msg = "HTTP probe responded but did not match Communication and Print Board structure"
+            raise DucoError(msg)
+        msg = f"HTTP probe returned unexpected status {response.status}"
+        raise DucoError(msg)
+    except (DucoError, DucoConnectionError):
+        raise
+    except Exception as err:
+        msg = f"Failed to connect to Duco box at {host}: {err}"
+        raise DucoConnectionError(msg) from err
