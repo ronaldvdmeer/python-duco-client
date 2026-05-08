@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Add `ACKNOWLEDGEMENTS.md` and link it from `README.md` to document the
+  historical attribution for the removed API key generation
+  implementation.
+
 ## [0.6.0] - 2026-05-08
 
 ### Removed

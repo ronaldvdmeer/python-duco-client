@@ -54,8 +54,8 @@ See the [docs/](docs/) folder for the full documentation:
 - [API Reference](docs/api-reference.md)
 - [CLI](docs/cli.md)
 - [Error Handling](docs/error-handling.md)
+- [Acknowledgements](ACKNOWLEDGEMENTS.md)
 
 ## License
 
-MIT
-
+MIT. See `LICENSE` for details.
