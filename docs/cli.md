@@ -10,9 +10,13 @@ duco [--host HOST] [--https] <command>
 
 Use `--host` or the `DUCO_HOST` environment variable to specify the IP address or hostname of your Duco box.
 
-Use `--https` to connect over HTTPS with the bundled Duco CA certificate. This is required for newer
-Duco Connectivity Board firmware that only exposes certain data (such as node temperature) over the
-authenticated HTTPS API. The bundled CA is trusted automatically; no extra configuration is needed.
+Use `--https` to connect over HTTPS with the bundled Duco CA certificate. Use
+this for Duco Connectivity Board devices. The bundled CA is trusted
+automatically; no extra configuration is needed.
+
+Some Connectivity Board firmware exposes a reduced unauthenticated dataset, so
+fields like node temperature, extended diagnostics, or extra API metadata can
+still be absent even over HTTPS.
 
 ## Options
 
@@ -38,10 +42,10 @@ Both options can also be set via environment variables: `DUCO_HOST` and `DUCO_HT
 # Show box status over HTTP (default)
 duco info
 
-# Show box status over HTTPS (required for temperature data)
+# Show box status over HTTPS
 duco --https info
 
-# List all nodes including temperature readings
+# List all nodes
 duco --https nodes
 
 # List all zones
