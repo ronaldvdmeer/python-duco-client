@@ -165,6 +165,7 @@ HTTP behaviour must now pass `scheme="http"` explicitly.
 - Initial release with basic node info retrieval and action control.
 
 [Unreleased]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.3.10...v0.4.0
