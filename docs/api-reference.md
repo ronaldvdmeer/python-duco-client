@@ -16,7 +16,7 @@ async with aiohttp.ClientSession() as session:
 
 ### `async_detect_board_family(host, session, ssl_context=None, timeout=10.0)`
 
-Detect the hardware board family of a Duco box without authentication. Useful before constructing a `DucoClient` to determine which protocol the box supports.
+Detect the hardware board family of a Duco box without requiring an API key. Useful before constructing a `DucoClient` to determine which protocol the box supports.
 
 Probes HTTPS first (Connectivity Board); falls back to HTTP when the HTTPS probe fails with a transport-level error or returns 404 (Communication and Print Board).
 
@@ -60,6 +60,10 @@ asyncio.run(main())
 ### `async_get_api_info()`
 
 Get API version metadata and the endpoint inventory of the Connectivity Board.
+
+Some firmware versions expose a reduced unauthenticated `/api` response. In
+that case `reported_api_version` can be `None` and the endpoint inventory can
+be incomplete.
 
 ```python
 info = await client.async_get_api_info()
@@ -140,6 +144,9 @@ print(lan.ip, lan.rssi_wifi)
 
 Get diagnostic status of all subsystems.
 
+Some firmware versions expose a reduced unauthenticated diagnostics set, so the
+number of returned components can vary.
+
 ```python
 diags = await client.async_get_diagnostics()
 for d in diags:
@@ -173,6 +180,10 @@ print(f"{remaining} write requests remaining")
 ### `async_get_nodes()`
 
 Get all nodes with their details.
+
+Some firmware versions omit optional sensor fields from unauthenticated node
+responses. For example, temperature can be `None` even when the physical node
+has a temperature sensor.
 
 ```python
 nodes = await client.async_get_nodes()
@@ -659,7 +670,7 @@ Hardware board family returned by `async_detect_board_family()`.
 
 | Value | Description |
 |---|---|
-| `BoardFamily.CONNECTIVITY_BOARD` | Modern Connectivity Board (HTTPS, API key) |
+| `BoardFamily.CONNECTIVITY_BOARD` | Modern Connectivity Board (HTTPS) |
 | `BoardFamily.COMMUNICATION_PRINT` | Older Communication and Print Board (HTTP, no auth) |
 
 ```python

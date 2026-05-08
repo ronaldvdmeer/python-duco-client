@@ -7,7 +7,6 @@ from importlib.metadata import PackageNotFoundError, version
 from ._ssl import build_ssl_context
 from .client import DucoClient, async_detect_board_family
 from .exceptions import (
-    DucoAuthenticationError,
     DucoConnectionError,
     DucoError,
     DucoRateLimitError,
@@ -49,7 +48,6 @@ __all__ = [
     "BoardInfo",
     "DiagComponent",
     "DiagStatus",
-    "DucoAuthenticationError",
     "DucoClient",
     "DucoConnectionError",
     "DucoError",

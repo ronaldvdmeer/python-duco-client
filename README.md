@@ -2,6 +2,11 @@
 
 Async Python client for the DUCO ventilation box local REST API.
 
+The client uses the unauthenticated Connectivity Board API surface. On some
+firmware versions this means optional fields like node temperature,
+`reported_api_version`, endpoint inventory details, and extended diagnostics
+may be unavailable.
+
 ## Installation
 
 ```bash

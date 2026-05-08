@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ssl
-import time
 from unittest.mock import MagicMock, patch
 
 import aiohttp
@@ -11,9 +10,6 @@ from aioresponses import aioresponses
 
 from duco._ssl import build_ssl_context
 from duco.client import DucoClient
-
-_PRELOADED_API_KEY = "test-api-key-preloaded-for-unit-tests"
-
 
 # ---------------------------------------------------------------------------
 # build_ssl_context
@@ -97,8 +93,6 @@ def test_client_explicit_ssl_context_is_used_directly():
 async def test_request_passes_ssl_true_for_http(api_info_data):
     async with aiohttp.ClientSession() as session:
         client = DucoClient(session=session, host="192.168.3.94", scheme="http")
-        client._api_key = _PRELOADED_API_KEY
-        client._api_key_day = int(time.time()) // 86400
 
         with aioresponses() as m:
             m.get("http://192.168.3.94/api", payload=api_info_data)
@@ -115,8 +109,6 @@ async def test_request_passes_ssl_context_for_https(api_info_data):
             mock_build.return_value = fake_ctx
 
             client = DucoClient(session=session, host="192.168.3.94", scheme="https")
-            client._api_key = _PRELOADED_API_KEY
-            client._api_key_day = int(time.time()) // 86400
 
             with aioresponses() as m:
                 m.get("https://192.168.3.94/api", payload=api_info_data)
