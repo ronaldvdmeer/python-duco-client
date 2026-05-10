@@ -1,5 +1,10 @@
 # python-duco-client
 
+> This project is deprecated. Future development moved to
+> [python-duco-connectivity](https://github.com/ronaldvdmeer/python-duco-connectivity).
+> This repository remains available for historical reference and will receive
+> no further development.
+
 Async Python client for the DUCO ventilation box local REST API.
 
 The client uses the unauthenticated Connectivity Board API surface. On some
