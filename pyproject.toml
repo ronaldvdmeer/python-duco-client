@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-duco-client"
-version = "0.6.1"
+version = "0.6.2"
 description = "Async Python client for the Duco ventilation API"
 dynamic = ["readme"]
 license = "MIT"
@@ -13,7 +13,7 @@ authors = [
     { name = "Ronald van der Meer" },
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 7 - Inactive",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",

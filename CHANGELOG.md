@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-05-10
+
+### Deprecated
+
+- Mark `python-duco-client` as deprecated and inactive.
+- Move future development to `python-duco-connectivity`.
+- Keep this repository available for historical reference as the final release
+  line before archival.
+
 ## [0.6.1] - 2026-05-09
 
 ### Documentation
@@ -174,7 +183,8 @@ HTTP behaviour must now pass `scheme="http"` explicitly.
 
 - Initial release with basic node info retrieval and action control.
 
-[Unreleased]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ronaldvdmeer/python-duco-client/compare/v0.4.2...v0.5.0
